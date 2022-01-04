@@ -5,6 +5,8 @@ from secrets import TOKENS, DBURL
 # You can just create multiple apps to get multiple access tokens.
 # Make sure to use long-life keys
 
+KEYS_PER_THREAD = 7
+
 URL = "https://graph.facebook.com/v12.0/ads_archive"
 # All except for ad_snapshot_url
 FIELDS = "id,ad_creation_time,ad_creative_bodies,ad_creative_link_captions,ad_creative_link_descriptions,ad_creative_link_titles,ad_delivery_start_time,ad_delivery_stop_time,bylines,currency,delivery_by_region,demographic_distribution,estimated_audience_size,impressions,languages,page_id,page_name,publisher_platforms,spend"

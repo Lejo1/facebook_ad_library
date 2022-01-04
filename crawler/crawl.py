@@ -8,10 +8,10 @@ import math
 
 import config
 
-lang = "US"
+lang = ",".join(config.COUNTRIES.keys())
 
 # Database for the pages and ads
-db = MongoClient(config.DBURL)["facebook_ads_" + lang.lower()]
+db = MongoClient(config.DBURL)["facebook_ads_full"]
 
 # contains the page_id from the reports
 todo = db["todo"]
@@ -105,7 +105,10 @@ class Crawler(Thread):
                             print("Got Rate limited!")
                             continue
 
-                        if out["error"]["type"] == "OAuthException":
+                        elif out["error"]["code"] == 33:
+                            print("INVALID PAGE ID")
+
+                        elif out["error"]["type"] == "OAuthException":
                             # All other OAuthException-errors will stop the script to prevent error-spaming
                             print("INVALID Token")
                             exit()
@@ -178,9 +181,11 @@ class Crawler(Thread):
 # Spawn multiple crawling threads
 if __name__ == "__main__":
     threads = []
-    # Grant each threads min 5 keys
-    for a in range(math.floor(len(config.TOKENS) / 5)):
-        t = Crawler(a * 5, (a + 1) * 5)
+    # Grant each threads min 7 keys
+    amount = math.floor(len(config.TOKENS) / config.KEYS_PER_THREAD)
+    print("Spawning %i Crawler-Threads" % amount)
+    for a in range(amount):
+        t = Crawler(a * config.KEYS_PER_THREAD, (a + 1) * config.KEYS_PER_THREAD)
         t.start()
         threads.append(t)
 
