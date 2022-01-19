@@ -1,6 +1,6 @@
 import json
 import requests
-from pymongo import MongoClient, errors
+from pymongo import MongoClient, errors, UpdateOne
 import time
 import datetime
 from threading import Thread
@@ -133,11 +133,10 @@ class Crawler(Thread):
                 data[i]["_id"] = entrie["id"]
                 del data[i]["id"]
 
-            try:
-                ads.insert_many(data)
-            except errors.BulkWriteError:
-                # This only happens when the script was stopped while crawling a page
-                print("Ignoring duplicates...")
+            # Create bulk of upsert updates to allow key-duplicates
+            upserts = [UpdateOne({'_id': x['_id']}, {
+                                 '$set': x}, upsert=True) for x in data]
+            result = ads.bulk_write(upserts)
 
             print("Inserted %i items" % amount)
 
@@ -160,8 +159,8 @@ class Crawler(Thread):
 
             page_id = x["_id"]
             name = "NONE"
-            if "Page name" in x:
-                name = x["Page name"]
+            if "page_name" in x:
+                name = x["page_name"]
 
             print("Crawling %s..." % name)
             newvalues = {}
@@ -185,7 +184,8 @@ if __name__ == "__main__":
     amount = math.floor(len(config.TOKENS) / config.KEYS_PER_THREAD)
     print("Spawning %i Crawler-Threads" % amount)
     for a in range(amount):
-        t = Crawler(a * config.KEYS_PER_THREAD, (a + 1) * config.KEYS_PER_THREAD)
+        t = Crawler(a * config.KEYS_PER_THREAD,
+                    (a + 1) * config.KEYS_PER_THREAD)
         t.start()
         threads.append(t)
 
