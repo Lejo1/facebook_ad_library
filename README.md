@@ -16,7 +16,7 @@ One more problem is that advertisements from page_id=0 pages are not searchable.
 
 In the end this resulted in the ads in this dataset being less than it should be according to the reports.
 
-### There are two json files per country:
+### There are two json files per zip-file download:
 
 `todo.json`: based on the [Ad-reports](https://www.facebook.com/ads/library/report/) and contains all pages crawled from with the timestamp of the last crawl and the paging cursor (after) in the "msg" field  
 `ads.json`: Contains the actual ads with the following fields:
@@ -44,19 +44,24 @@ In the end this resulted in the ads in this dataset being less than it should be
 
 The field `ad_snapshot_url` is not crawled as it's just a combination of the id and your access token:  
 `https://www.facebook.com/ads/archive/render_ad/?id=<id>&access_token=<token>`  
-Alternatively you can use this link if you don't have any access token:
+Alternatively you can use this link if you don't have any access token:  
 `https://www.facebook.com/ads/library/?id=<id>`
 
 For more information have a look at the `example.json` file or the description of the fields on the official [API](https://www.facebook.com/ads/library/api/).
 
 ### Available Countries
 
-The whole dataset with all crawled countries and reports is available on [kaggle.com](https://www.kaggle.com/lejo11/facebook-ad-library)  
-You can also download the individual zip-folders and reports they are based on from here:
+I first crawled the German and US Library and then decided to create a full crawl.
 
+#### Full Crawl of all countries from all reports:
+For this crawl `todo.json` contains a `lang` field specifying the report the page came from.
+The reports were all automatically loaded into the db using the `import_reports.py` script.  
+[Download](https://s3.nexxxt.cloud/facebook_ads/full.zip) [Reports](https://s3.nexxxt.cloud/facebook_ads/reports_full.zip)
+
+#### Individual countries crawled from:
+The data of these countries are also available on [kaggle.com](https://www.kaggle.com/lejo11/facebook-ad-library)
 - Germany (DE) [Download](https://s3.nexxxt.cloud/facebook_ads/de.zip) [Report](https://s3.nexxxt.cloud/facebook_ads/report_de.csv)
 - USA (US) [Download](https://s3.nexxxt.cloud/facebook_ads/us.zip) [Report](https://s3.nexxxt.cloud/facebook_ads/report_us.csv)
-- Planned: Full Crawl of all countries from all reports
 
 ## Crawling
 
