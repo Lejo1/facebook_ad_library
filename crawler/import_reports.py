@@ -1,6 +1,7 @@
 from zipfile import ZipFile
 import csv
 import io
+from hashlib import sha256
 from pymongo import MongoClient, errors
 
 import config
@@ -42,12 +43,14 @@ for lang in config.AD_COUNTRIES:
                     # We add it to db or update the entry
                     # spend/amount is per lang
                     query = {"_id": id}
+                    disclaimer = row[2]
+                    dis_hash = sha256(disclaimer.encode('utf-8')).hexdigest()
                     action = {"$set": {
                         "page_name": row[1],
-                        "disclaimer": row[2],
-                        ("spent.%s" % lang): row[3],
-                        ("amount.%s" % lang): number_of_ads
-                    }}
+                        ("stats.%s.%s.spent" % (dis_hash, lang)): row[3],
+                        ("stats.%s.%s.amount" % (dis_hash, lang)): number_of_ads
+                    },
+                        "$addToSet": {"disclaimers": disclaimer}}
 
                     res = todo.update_one(query, action, upsert=True)
                     if res.modified_count >= 1:
