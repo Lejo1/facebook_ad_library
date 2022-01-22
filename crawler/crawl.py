@@ -125,22 +125,20 @@ class Crawler(Thread):
                 # The last one poiting to the next empty page will be saved in the msg field
                 after = out["paging"]["cursors"]["after"]
 
-            if amount <= 0:
-                break
+            if amount > 0:
+                for i, entrie in enumerate(data):
+                    # Data is saved to a mongodb, so we use the primary key _id
+                    data[i]["_id"] = entrie["id"]
+                    del data[i]["id"]
 
-            for i, entrie in enumerate(data):
-                # Data is saved to a mongodb, so we use the primary key _id
-                data[i]["_id"] = entrie["id"]
-                del data[i]["id"]
+                # Create bulk of upsert updates to allow key-duplicates
+                upserts = [UpdateOne({'_id': x['_id']}, {
+                                     '$set': x}, upsert=True) for x in data]
+                result = ads.bulk_write(upserts)
 
-            # Create bulk of upsert updates to allow key-duplicates
-            upserts = [UpdateOne({'_id': x['_id']}, {
-                                 '$set': x}, upsert=True) for x in data]
-            result = ads.bulk_write(upserts)
+                print("Inserted %i items" % amount)
 
-            print("Inserted %i items" % amount)
-
-            if amount < limit or not "paging" in out:
+            if not "paging" in out:
                 break
 
         print("Finished page!")
