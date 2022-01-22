@@ -150,7 +150,7 @@ class Crawler(Thread):
         while _RUN:
             # Pull one item from the todo collection and queue it so other threads don't work on it as well
             x = todo.find_one_and_update({"status": "todo"},
-                                         {"$set": {"status": "queued"}})
+                                         {"$set": {"status": "crawling"}})
             if x == None:
                 print("No items left!")
                 break
