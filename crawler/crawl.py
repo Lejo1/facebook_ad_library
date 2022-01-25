@@ -5,6 +5,7 @@ import time
 import datetime
 from threading import Thread
 import math
+import sys
 
 import config
 
@@ -27,8 +28,9 @@ class Crawler(Thread):
     """One Crawling proccess (to be threaded).
     Allows specifing a range of tokens to use"""
 
-    def __init__(self, min=0, max=len(config.TOKENS)):
+    def __init__(self, state="todo", min=0, max=len(config.TOKENS)):
         Thread.__init__(self)
+        self.state = state
         self.min = min
         self.max = max
         self.delayed = [0 for a in range(max)]
@@ -64,11 +66,10 @@ class Crawler(Thread):
                 print("Switched to key n=%i" % self.tround)
 
     # Does the actual downloading of the page
-    def pull_page(self, page_id):
+    def pull_page(self, page_id, after):
         limit = config.LIMIT
-        after = ""
         while True:
-            print("Running link...")
+            print("Running link... After: %s" % after)
             firsturl = config.URL + "?access_token=%s&search_page_ids=%s&ad_reached_countries=%s&ad_active_status=ALL&fields=%s&limit=%i" % (
                 config.TOKENS[self.tround][1], page_id, lang, config.FIELDS, limit)
             if after != "":
@@ -149,7 +150,7 @@ class Crawler(Thread):
     def run(self):
         while _RUN:
             # Pull one item from the todo collection and queue it so other threads don't work on it as well
-            x = todo.find_one_and_update({"status": "todo"},
+            x = todo.find_one_and_update({"status": self.state},
                                          {"$set": {"status": "crawling"}})
             if x == None:
                 print("No items left!")
@@ -161,16 +162,22 @@ class Crawler(Thread):
                 name = x["page_name"]
 
             print("Crawling %s..." % name)
+            after = ""
+            if self.state == "crawlcursor" and "after" in x:
+                after = x["after"]
+
             newvalues = {}
             try:
-                suc, msg = self.pull_page(page_id)
-                newvalues = {"$set": {"status": (
-                    "done" if suc else "error"), "msg": msg, "timestamp": datetime.datetime.now()}}
+                suc, msg = self.pull_page(page_id, after)
+                if suc:
+                    newvalues = {"$set": {"status": "done", "after": msg, "timestamp": datetime.datetime.now()}}
+                else:
+                    newvalues = {"$set": {"status": "error", "msg": msg, "timestamp": datetime.datetime.now()}}
+
             except Exception as e:
                 print("Error while trying to pull %s: %s" % (name, str(e)))
                 print(e)
-                newvalues = {"$set": {"status": "error", "msg": "Exception: %s" % str(
-                    e), "timestamp": datetime.datetime.now()}}
+                newvalues = {"$set": {"status": "error", "msg": "Exception: %s" % str(e), "timestamp": datetime.datetime.now()}}
 
             todo.update_one({"_id": page_id}, newvalues)
 
@@ -179,10 +186,14 @@ class Crawler(Thread):
 if __name__ == "__main__":
     threads = []
     # Grant each threads min 7 keys
+    state = "todo"
+    if len(sys.argv) >= 2:
+        state = sys.argv[1]
+    print("Checking for state %s" % state)
     amount = math.floor(len(config.TOKENS) / config.KEYS_PER_THREAD)
     print("Spawning %i Crawler-Threads" % amount)
     for a in range(amount):
-        t = Crawler(a * config.KEYS_PER_THREAD,
+        t = Crawler(state, a * config.KEYS_PER_THREAD,
                     (a + 1) * config.KEYS_PER_THREAD)
         t.start()
         threads.append(t)
