@@ -85,8 +85,8 @@ class Crawler(Thread):
                 print("Something went wrong... %s" % err)
                 out = response.json()
                 if out and "error" in out:
-                    if "message" in out["error"]:
-                        if response.status_code == 500:
+                    if response.status_code == 500:
+                        if "message" in out["error"]:
                             if out["error"]["message"] == "Please reduce the amount of data you\'re asking for, then retry your request":
                                 # We just try it again with half the amount of data
                                 limit = int(limit * 0.5)
@@ -94,27 +94,25 @@ class Crawler(Thread):
                                     "Got too much data, Retring with half the amount(%i)" % limit)
                                 continue
 
-                            if out["error"]["message"] == "An unexpected error has occurred. Please retry your request later.":
-                                # These just occur sometimes and we don't want the whole script to stop.
-                                print("Unexpected error! Watiting 1min...")
-                                time.sleep(60)
-                                continue
+                    elif out["error"]["code"] == 1 or out["error"]["code"] == 2:
+                        # These just occur sometimes and we don't want the whole script to stop.
+                        print("Unexpected error! Watiting 1min...")
+                        time.sleep(60)
+                        continue
 
-                    if "type" in out["error"]:
-                        if out["error"]["code"] == 613:
-                            # the cooldown function has already switched to the next key so we can just retry
-                            print("Got Rate limited!")
-                            continue
+                    elif out["error"]["code"] == 33:
+                        print("INVALID PAGE ID")
 
-                        elif out["error"]["code"] == 33:
-                            print("INVALID PAGE ID")
+                    elif out["error"]["code"] == 190:
+                        # stop the script to prevent error-spaming
+                        print("INVALID Token!")
+                        _RUN = False
 
-                        elif out["error"]["type"] == "OAuthException":
-                            # All other OAuthException-errors will stop the script to prevent error-spaming
-                            print("INVALID Token")
-                            exit()
+                    elif out["error"]["code"] == 613:
+                        # the cooldown function has already switched to the next key so we can just retry
+                        print("Got Rate limited!")
+                        continue
 
-                print("Something went wrong...")
                 # This error will be stored in the msg field page will be status="error"
                 return [False, err]
 
@@ -170,14 +168,17 @@ class Crawler(Thread):
             try:
                 suc, msg = self.pull_page(page_id, after)
                 if suc:
-                    newvalues = {"$set": {"status": "done", "after": msg, "timestamp": datetime.datetime.now()}}
+                    newvalues = {
+                        "$set": {"status": "done", "after": msg, "timestamp": datetime.datetime.now()}}
                 else:
-                    newvalues = {"$set": {"status": "error", "msg": msg, "timestamp": datetime.datetime.now()}}
+                    newvalues = {
+                        "$set": {"status": "error", "msg": msg, "timestamp": datetime.datetime.now()}}
 
             except Exception as e:
                 print("Error while trying to pull %s: %s" % (name, str(e)))
                 print(e)
-                newvalues = {"$set": {"status": "error", "msg": "Exception: %s" % str(e), "timestamp": datetime.datetime.now()}}
+                newvalues = {"$set": {"status": "error", "msg": "Exception: %s" % str(
+                    e), "timestamp": datetime.datetime.now()}}
 
             todo.update_one({"_id": page_id}, newvalues)
 
