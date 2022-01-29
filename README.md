@@ -54,7 +54,7 @@ For more information have a look at the `example.json` file or the description o
 
 #### V2
 Also contains page stats for multiple disclaimers and countries. Large pages should be complete now. Multiple reports from different dates were used for updating.  
-[Download](https://s3.nexxxt.cloud/facebook_ads/full2.zip)
+[Download](https://b2.nexxxt.cloud/facebook_ads/full2.zip)
 
 #### V1
 
@@ -63,12 +63,12 @@ I first crawled the German and US Library and then decided to create a full craw
 ##### Full Crawl of all countries from all reports:
 For this crawl `todo.json` contains a `lang` field specifying the report the page came from.
 The reports were all automatically loaded into the db using the `import_reports.py` script.  
-[Download](https://s3.nexxxt.cloud/facebook_ads/full.zip) [Reports](https://s3.nexxxt.cloud/facebook_ads/reports_full.zip)
+[Download](https://b2.nexxxt.cloud/facebook_ads/full.zip) [Reports](https://b2.nexxxt.cloud/facebook_ads/reports_full.zip)
 
 ##### Individual countries crawled from:
 The data of these countries are also available on [kaggle.com](https://www.kaggle.com/lejo11/facebook-ad-library)
-- Germany (DE) [Download](https://s3.nexxxt.cloud/facebook_ads/de.zip) [Report](https://s3.nexxxt.cloud/facebook_ads/report_de.csv)
-- USA (US) [Download](https://s3.nexxxt.cloud/facebook_ads/us.zip) [Report](https://s3.nexxxt.cloud/facebook_ads/report_us.csv)
+- Germany (DE) [Download](https://b2.nexxxt.cloud/facebook_ads/de.zip) [Report](https://b2.nexxxt.cloud/facebook_ads/report_de.csv)
+- USA (US) [Download](https://b2.nexxxt.cloud/facebook_ads/us.zip) [Report](https://b2.nexxxt.cloud/facebook_ads/report_us.csv)
 
 ## Crawling
 
