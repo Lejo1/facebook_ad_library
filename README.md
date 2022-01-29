@@ -12,13 +12,14 @@ The data is downloaded by country and page_id obtained from the [Ad-reports](htt
 Cause these reports contain user generated page_names and disclaimers some names or disclaimers might be corrupted by strange characters.
 
 Another thing I realized is that some ads (or whole pages?) are temporarily (or permanently?) not searchable by the page_id which published them. You can identify them by checking the specified amount of Ads from the report vs. the actual loaded amount of ads in the dataset. Often this also results in pages seemingly having 0 ads. You can identify them by the msg field being empty (msg="").   
-One more problem is that advertisements from page_id=0 pages are not searchable. These often just refer to a "Instagram User of some id" or other Facebook-Platform users. Have a look at the reports I used for more information.
+One more problem is that advertisements from page_id=0 pages are not searchable. These often just refer to a "Instagram User of some id" or other Facebook-Platform users. Have a look at the reports I used for more information.  
+Also I later realized that when crawling very huge sites are empty although they should contain ads. That's the reason why the V1 might not contain all (especially older) ads.
 
 In the end this resulted in the ads in this dataset being less than it should be according to the reports.
 
 ### There are two json files per zip-file download:
 
-`todo.json`: based on the [Ad-reports](https://www.facebook.com/ads/library/report/) and contains all pages crawled from with the timestamp of the last crawl and the paging cursor (after) in the "msg" field  
+`todo.json`: based on the [Ad-reports](https://www.facebook.com/ads/library/report/) and contains all pages crawled from with the timestamp of the last crawl and the paging cursor (after)  
 `ads.json`: Contains the actual ads with the following fields:
 
 ### Fields
@@ -51,14 +52,20 @@ For more information have a look at the `example.json` file or the description o
 
 ### Available Countries
 
+#### V2
+Also contains page stats for multiple disclaimers and countries. Large pages should be complete now. Multiple reports from different dates were used for updating.  
+[Download](https://s3.nexxxt.cloud/facebook_ads/full2.zip)
+
+#### V1
+
 I first crawled the German and US Library and then decided to create a full crawl.
 
-#### Full Crawl of all countries from all reports:
+##### Full Crawl of all countries from all reports:
 For this crawl `todo.json` contains a `lang` field specifying the report the page came from.
 The reports were all automatically loaded into the db using the `import_reports.py` script.  
 [Download](https://s3.nexxxt.cloud/facebook_ads/full.zip) [Reports](https://s3.nexxxt.cloud/facebook_ads/reports_full.zip)
 
-#### Individual countries crawled from:
+##### Individual countries crawled from:
 The data of these countries are also available on [kaggle.com](https://www.kaggle.com/lejo11/facebook-ad-library)
 - Germany (DE) [Download](https://s3.nexxxt.cloud/facebook_ads/de.zip) [Report](https://s3.nexxxt.cloud/facebook_ads/report_de.csv)
 - USA (US) [Download](https://s3.nexxxt.cloud/facebook_ads/us.zip) [Report](https://s3.nexxxt.cloud/facebook_ads/report_us.csv)
