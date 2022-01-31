@@ -7,7 +7,7 @@ from pymongo import MongoClient, errors
 import config
 
 db = MongoClient(config.DBURL)["facebook_ads_full"]
-todo = db["todo"]
+pages = db["pages"]
 
 # The zip-folders containing the reports are here:
 REPORTPATH = "reports/"
@@ -52,10 +52,10 @@ for lang in config.AD_COUNTRIES:
                     },
                         "$addToSet": {"disclaimers": disclaimer}}
 
-                    res = todo.update_one(query, action, upsert=True)
+                    res = pages.update_one(query, action, upsert=True)
                     if res.modified_count >= 1:
                         # If the number_of_ads changed we set status to "todo"
-                        todo.update_one(query, {"$set": {"status": "todo"}})
+                        pages.update_one(query, {"$set": {"status": "todo"}})
                         updates += 1
 
                 count += 1

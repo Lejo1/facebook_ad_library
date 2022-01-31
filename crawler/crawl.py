@@ -15,7 +15,7 @@ lang = ",".join(config.COUNTRIES.keys())
 db = MongoClient(config.DBURL)["facebook_ads_full"]
 
 # contains the page_id from the reports
-todo = db["todo"]
+pages = db["pages"]
 
 # Ads will be saved to this collection:
 ads = db["ads"]
@@ -147,8 +147,8 @@ class Crawler(Thread):
     # Repeats it until no items are left or the process gets interrupted
     def run(self):
         while _RUN:
-            # Pull one item from the todo collection and queue it so other threads don't work on it as well
-            x = todo.find_one_and_update({"status": self.state},
+            # Pull one item from the pages collection and queue it so other threads don't work on it as well
+            x = pages.find_one_and_update({"status": self.state},
                                          {"$set": {"status": "crawling"}})
             if x == None:
                 print("No items left!")
@@ -180,7 +180,7 @@ class Crawler(Thread):
                 newvalues = {"$set": {"status": "error", "msg": "Exception: %s" % str(
                     e), "timestamp": datetime.datetime.now()}}
 
-            todo.update_one({"_id": page_id}, newvalues)
+            pages.update_one({"_id": page_id}, newvalues)
 
 
 # Spawn multiple crawling threads
