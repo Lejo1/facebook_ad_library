@@ -1,6 +1,6 @@
 import json
 import requests
-from pymongo import MongoClient, errors, UpdateOne
+from pymongo import MongoClient, UpdateOne
 import time
 import datetime
 from threading import Thread
