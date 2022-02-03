@@ -94,7 +94,7 @@ class Crawler(Thread):
                                     "Got too much data, Retring with half the amount(%i)" % limit)
                                 continue
 
-                    elif out["error"]["code"] == 1 or out["error"]["code"] == 2:
+                    if out["error"]["code"] == 1 or out["error"]["code"] == 2:
                         # These just occur sometimes and we don't want the whole script to stop.
                         print("Unexpected error! Watiting 1min...")
                         time.sleep(60)
