@@ -8,11 +8,11 @@ This data is already meant to be public so this dataset is just helping to provi
 
 The data is loaded directly from their official [API](https://www.facebook.com/ads/library/api/).
 
-The data is downloaded by country and page_id obtained from the [Ad-reports](https://www.facebook.com/ads/library/report/). These should only include pages related to politics or issues of political importance but not all are clearly flagged.  
-Cause these reports contain user generated page_names and disclaimers some names or disclaimers might be corrupted by strange characters.
+The data is downloaded by page_id obtained from the [Ad-reports](https://www.facebook.com/ads/library/report/). These should only include pages related to politics or issues of political importance but not all are clearly flagged.  
+Cause these reports contain user generated page_names and disclaimers some names or disclaimers might be corrupted by strange characters. In addition to this I later also started crawling accross the whole library using an empty query (*).
 
 Another thing I realized is that some ads (or whole pages?) are temporarily (or permanently?) not searchable by the page_id which published them. You can identify them by checking the specified amount of Ads from the report vs. the actual loaded amount of ads in the dataset. Often this also results in pages seemingly having 0 ads. You can identify them by the msg field being empty (msg="").   
-One more problem is that advertisements from page_id=0 pages are not searchable. These often just refer to a "Instagram User of some id" or other Facebook-Platform users. Have a look at the reports I used for more information.  
+One more problem is that advertisements from page_id=0 pages are not searchable. These often just refer to a "Instagram User of some id" or other Facebook-Platform users. Have a look at the reports I used for more information. UPDATE: They are crawled using the empty query trick.
 Also I later realized that when crawling very huge sites are empty although they should contain ads. That's the reason why the V1 might not contain all (especially older) ads.
 
 In the end this resulted in the ads in this dataset being less than it should be according to the reports.
