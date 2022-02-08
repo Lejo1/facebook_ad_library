@@ -1,0 +1,33 @@
+# Example file showing all services you might want to run
+version: '3'
+
+services:
+  firefox:
+    image: selenium/standalone-firefox
+    restart: always
+    shm_size: 2gb
+    environment:
+      - SE_NODE_MAX_SESSIONS=8
+
+  render_preview:
+    build: ./preview_renderer
+    restart: always
+    volumes:
+      - ./render-out:/out
+    environment:
+      PYTHONUNBUFFERED: 1
+    stop_signal: SIGINT
+    env_file:
+      - secrets.env
+    depends_on:
+      - firefox
+    deploy:
+      mode: replicated
+      replicas: 3
+
+  api_crawler:
+    build: ./crawler
+    restart: always
+    environment:
+      PYTHONUNBUFFERED: 1
+    stop_signal: SIGINT
