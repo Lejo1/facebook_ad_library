@@ -77,4 +77,4 @@ For more information just have a look at the `crawl.py` file.
 
 ## Contact
 
-If you've got any more information regarding Facebook's API/Library or believe there are any legal issues with the distribution of this data please contact me: <Lejo_1@web.de> or open an Issue!
+If you've got any more information regarding Facebook's API/Library or believe there are any legal issues with the distribution of this data please contact me: <ad-archive@nexxxt.cloud> or open an Issue!
