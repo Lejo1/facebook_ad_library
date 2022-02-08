@@ -1,0 +1,4 @@
+selenium
+pillow
+b2sdk
+pymongo
