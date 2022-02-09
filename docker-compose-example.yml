@@ -16,6 +16,7 @@ services:
       - ./render-out:/out
     environment:
       PYTHONUNBUFFERED: 1
+      RENDER_ALL: False
     stop_signal: SIGINT
     env_file:
       - secrets.env

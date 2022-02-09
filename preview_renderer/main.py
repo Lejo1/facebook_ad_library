@@ -10,6 +10,7 @@ import threading
 
 # Secrets from enviroment variables
 TOKEN = os.getenv("TOKEN")
+RENDER_ALL = os.getenv("RENDER_ALL")
 
 # Auth to Backblaze
 info = InMemoryAccountInfo()
@@ -85,17 +86,26 @@ def load_preview(id):
 if __name__ == "__main__":
     x = None
     try:
-        print("All initalized, watching queue...")
+        print("All initalized, watching queue... RENDER_ALL=%s" % RENDER_ALL)
         while True:
             # Pull one item from the queue (partial index on the ads collection) and remove it from there
             x = ads.find_one_and_update(
                 {"rendered": False}, {"$set": {"rendered": True}})
 
             if x == None:
+                # Is this worker supposed to just render everything?
+                if RENDER_ALL == "true":
+                    # Getting ad with nonexisting renderer field (not queued)
+                    x = ads.find_one_and_update(
+                        {"rendered": {"$exists": False}}, {"$set": {"rendered": True}})
+
+            if x != None:
+                load_preview(x["_id"])
+
+            else:
                 sleep(10)
                 continue
 
-            load_preview(x["_id"])
             # Sleeping is important for RAM cleaning on the browser
             sleep(1)
 
