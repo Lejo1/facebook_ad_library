@@ -8,19 +8,21 @@ This data is already meant to be public so this dataset is just helping to provi
 
 The data is loaded directly from their official [API](https://www.facebook.com/ads/library/api/).
 
-The data is downloaded by page_id obtained from the [Ad-reports](https://www.facebook.com/ads/library/report/). These should only include pages related to politics or issues of political importance but not all are clearly flagged.  
-Cause these reports contain user generated page_names and disclaimers some names or disclaimers might be corrupted by strange characters. In addition to this I later also started crawling accross the whole library using an empty query (*).
+Since V3 the ads are crawled using an empty query (*) across all countries. This query turned out to be quiet reliable and returns all ads of all pages
+
+Previously the data was downloaded by page_id obtained from the [Ad-reports](https://www.facebook.com/ads/library/report/). These should only include pages related to politics or issues of political importance but not all are clearly flagged.  
+Cause these reports contain user generated page_names and disclaimers some names or disclaimers might be corrupted by strange characters.
 
 Another thing I realized is that some ads (or whole pages?) are temporarily (or permanently?) not searchable by the page_id which published them. You can identify them by checking the specified amount of Ads from the report vs. the actual loaded amount of ads in the dataset. Often this also results in pages seemingly having 0 ads. You can identify them by the msg field being empty (msg="").   
-One more problem is that advertisements from page_id=0 pages are not searchable. These often just refer to a "Instagram User of some id" or other Facebook-Platform users. Have a look at the reports I used for more information. UPDATE: They are crawled using the empty query trick.
-Also I later realized that when crawling very huge sites are empty although they should contain ads. That's the reason why the V1 might not contain all (especially older) ads.
+One more problem is that advertisements from page_id=0 pages are not crawlable by their page_id. These often just refer to a "Instagram User of some id" or other Facebook-Platform users. Have a look at the reports I used for more information. UPDATE: They are crawled using the empty query trick.
+Also I later realized that when crawling very huge sites are empty although they should contain ads.
 
-In the end this resulted in the ads in this dataset being less than it should be according to the reports.
+~~In the end this resulted in the ads in this dataset being less than it should be according to the reports.~~ Should be pretty accurate now.
 
 ### There are two json files per zip-file download:
 
-`todo.json`: based on the [Ad-reports](https://www.facebook.com/ads/library/report/) and contains all pages crawled from with the timestamp of the last crawl and the paging cursor (after)  
 `ads.json`: Contains the actual ads with the following fields:
+Pre V3 unreliable: `todo.json`: based on the [Ad-reports](https://www.facebook.com/ads/library/report/) and contains all pages crawled from with the timestamp of the last crawl and the paging cursor (after)  
 
 ### Fields
 - id("_id" in the table)
@@ -42,15 +44,30 @@ In the end this resulted in the ads in this dataset being less than it should be
 - page_name
 - publisher_platforms
 - spend
+- rendered (defines if the rendered version available)
 
 The field `ad_snapshot_url` is not crawled as it's just a combination of the id and your access token:  
 `https://www.facebook.com/ads/archive/render_ad/?id=<id>&access_token=<token>`  
-Alternatively you can use this link if you don't have any access token:  
-`https://www.facebook.com/ads/library/?id=<id>`
+To get to the ad if you don't have any access token you can use this link:  
+`https://www.facebook.com/ads/library/?id=<id>`  
+To actually render the ad without a access token you can use my cloudflare worker to proxy the data:
+`https://render-facebook-ad.lejo.workers.dev/<id>`
+You might need to disabled some privacy settings as browsers (like Firefox) block cross-site Facebook requests.
 
 For more information have a look at the `example.json` file or the description of the fields on the official [API](https://www.facebook.com/ads/library/api/).
 
+### Rendered Previews
+
+The script from the `preview_renderer` folder are used to take a screeshot of the relevant elements from the `ad_snapshot_url` of each ad. The rendered field defines whether the rendered image is available. `False` means the ad is queued for rendering.  
+After rendering you can view them here: `https://facebook-ad-previews.nexxxt.cloud/<id>.jpg`
+
 ### Available Countries
+
+#### V3
+Ads have been crawled using the empty query (*) across all countries. Should in theory now contain all ads in the library.  
+Field `rendered` added for the previews.  
+No `todo.json` collection file as the stats are wrong and weren't relevant for this crawl.  
+[Download](https://b2.nexxxt.cloud/facebook_ads/full3.zip)
 
 #### V2
 Also contains page stats for multiple disclaimers and countries. Large pages should be complete now. Multiple reports from different dates were used for updating.  
@@ -66,14 +83,15 @@ The reports were all automatically loaded into the db using the `import_reports.
 [Download](https://b2.nexxxt.cloud/facebook_ads/full.zip) [Reports](https://b2.nexxxt.cloud/facebook_ads/reports_full.zip)
 
 ##### Individual countries crawled from:
-The data of these countries are also available on [kaggle.com](https://www.kaggle.com/lejo11/facebook-ad-library)
+The data of these countries is also available on [kaggle.com](https://www.kaggle.com/lejo11/facebook-ad-library)
 - Germany (DE) [Download](https://b2.nexxxt.cloud/facebook_ads/de.zip) [Report](https://b2.nexxxt.cloud/facebook_ads/report_de.csv)
 - USA (US) [Download](https://b2.nexxxt.cloud/facebook_ads/us.zip) [Report](https://b2.nexxxt.cloud/facebook_ads/report_us.csv)
 
 ## Crawling
 
-Crawling is done based on the offical [reports](https://www.facebook.com/ads/library/report/) from Facebook. I loaded them into a mongodb and the `crawl.py` script pulled the data from the Api and added it into the ads collection. To do so you need a (or better multiple) access token. The script will automaticly handle rate limiting but you might not be able to pull on multiple threads if you don't have enough tokens.  
-For more information just have a look at the `crawl.py` file.
+Previously crawling was done based on the offical [reports](https://www.facebook.com/ads/library/report/) from Facebook. I loaded them into a mongodb and the `crawl.py` script pulled the data from the Api and added it into the ads collection. Now I'm just using the empty query (*) trick to download ads from all pages across all countries, see: `crawlall.py`  
+To do so you need a (or better multiple) access token. The script will automatically handle rate limiting but you might not be able to pull on multiple threads if you don't have enough tokens.  
+For more information just have a look at the `crawl.py`/`crawlall.py` file.
 
 ## Contact
 
