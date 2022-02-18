@@ -156,18 +156,22 @@ if __name__ == "__main__":
     if len(sys.argv) >= 2:
         after = sys.argv[1]
 
-    print("Spawning Crawling Thread")
-    t = Crawler(after, 0, len(config.TOKENS))
-    t.start()
-
+    threads = []
     try:
-        t.join()
+        while True:
+            print("Spawning Crawling Thread")
+            t = Crawler(after, 0, len(config.TOKENS))
+            t.start()
+            threads.append(t)
+            print("Waiting 1 day to spawn the next Thread")
+            time.sleep(86400)
 
     except KeyboardInterrupt:
         print("Got Interrupt, Stopping...")
         # Setting global var to false-> thread should stop after their crawl
         _RUN = False
 
-        t.join()
+        for t in threads:
+            t.join()
 
     print("STOP")
