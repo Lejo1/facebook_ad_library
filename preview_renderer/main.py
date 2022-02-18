@@ -70,9 +70,14 @@ def load_preview(id):
         # Take screenshot and convert to jpg
         image = c[0].screenshot_as_png
     else:
-        # Rendering may fail in someway, we do a full screenshot
-        print("Ad %s seems to be corrupted, we take a full browser screenshot" % id)
-        image = browser.get_screenshot_as_png()
+        # Something must have went wrong!
+        print("Something went wrong! Page source: %s" % browser.page_source)
+        if browser.page_source == "<html><head></head><body><h1>Blocked from Searching or Viewing the Ad Library</h1><p>You have been temporarily blocked from searching or viewing the Ad Library due to too many requests. Please try again later.</p></body></html>":
+            # We have got rate limited!
+            print("We've got temporarily blocked! Sleeping 1h")
+            sleep(3600)
+
+        return False
 
     # Convert image to JPEG
     image = Image.open(io.BytesIO(image)).convert("RGB")
@@ -81,6 +86,7 @@ def load_preview(id):
     # Upload to Backblaze bucket in the background
     print("Uploading preview...")
     threading.Thread(target=upload_file, args=[id]).start()
+    return True
 
 
 if __name__ == "__main__":
@@ -100,7 +106,8 @@ if __name__ == "__main__":
                         {"rendered": {"$exists": False}}, {"$set": {"rendered": True}})
 
             if x != None:
-                load_preview(x["_id"])
+                if load_preview(x["_id"]) == False:
+                    ads.update_one({"_id": x["_id"]}, {"$set": {"rendered": False}})
 
             else:
                 sleep(10)
