@@ -77,6 +77,15 @@ def load_preview(id):
             print("We've got temporarily blocked! Sleeping 1h")
             sleep(3600)
 
+        d = browser.find_elements(By.CLASS_NAME, "_50f6")
+        if len(d) > 0:
+            if d[0].text == "Error: invalid ID":
+                # This ad seems to be lost!
+                # Marking the ad as lost...
+                print("Ad %s seems to be lost, marking..." % id)
+                ads.update_one({"_id": id}, {"$set": {"lost": True}})
+                return True
+
         return False
 
     # Convert image to JPEG
