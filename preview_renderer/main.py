@@ -4,7 +4,7 @@ from PIL import Image
 import io
 import os
 from time import sleep
-from b2sdk.v2 import B2Api, InMemoryAccountInfo
+from b2sdk.v2 import B2Api, SqliteAccountInfo
 from pymongo import MongoClient
 import threading
 
@@ -13,7 +13,7 @@ TOKEN = os.getenv("TOKEN")
 RENDER_ALL = os.getenv("RENDER_ALL")
 
 # Auth to Backblaze
-info = InMemoryAccountInfo()
+info = SqliteAccountInfo()
 b2_api = B2Api(info)
 b2_api.authorize_account("production", os.getenv(
     "APPLICATION_KEY_ID"), os.getenv("APPLICATION_KEY"))
