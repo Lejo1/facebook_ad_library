@@ -4,7 +4,7 @@ from PIL import Image
 import io
 import os
 from time import sleep
-from b2sdk.v2 import B2Api, SqliteAccountInfo
+from b2sdk.v2 import B2Api, SqliteAccountInfo, AuthInfoCache
 from pymongo import MongoClient
 import threading
 
@@ -14,11 +14,13 @@ RENDER_ALL = os.getenv("RENDER_ALL")
 
 # Auth to Backblaze
 info = SqliteAccountInfo()
-b2_api = B2Api(info)
-b2_api.authorize_account("production", os.getenv(
+cache = AuthInfoCache(info)
+b2_api = B2Api(info, cache=cache)
+if not info.is_same_key(os.getenv("APPLICATION_KEY_ID"), "production"):
+    b2_api.authorize_account("production", os.getenv(
     "APPLICATION_KEY_ID"), os.getenv("APPLICATION_KEY"))
-bucket = b2_api.get_bucket_by_name(os.getenv("BUCKET_NAME"))
 
+bucket = b2_api.get_bucket_by_name(os.getenv("BUCKET_NAME"))
 # Connect to selenium/standalone-firefox docker container
 browser = webdriver.Remote(command_executor=os.getenv("BROWSER_URL"))
 
