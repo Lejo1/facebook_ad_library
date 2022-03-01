@@ -66,36 +66,34 @@ def load_preview(id):
 
     # Select element
     c = browser.find_elements(By.CLASS_NAME, "_8n-d")
-    if len(c) > 0:
+    if len(c) > 0 and c[0].text != "":
         # Take screenshot and convert to jpg
         image = c[0].screenshot_as_png
-    else:
-        # Something must have went wrong!
-        print("Something went wrong! Page source: %s" % browser.page_source)
-        if browser.page_source.lower() == "<html><head></head><body><h1>blocked from searching or viewing the ad library</h1><p>you have been temporarily blocked from searching or viewing the ad library due to too many requests. please try again later.</p></body></html>":
-            # We have got rate limited!
-            print("We've got temporarily blocked! Sleeping 1h")
-            sleep(3600)
+        # Convert image to JPEG
+        image = Image.open(io.BytesIO(image)).convert("RGB")
+        image.save(path, "JPEG")
 
-        d = browser.find_elements(By.CLASS_NAME, "_50f6")
-        if len(d) > 0:
-            if d[0].text == "Error: invalid ID":
-                # This ad seems to be lost!
-                # Marking the ad as lost...
-                print("Ad %s seems to be lost, marking..." % id)
-                ads.update_one({"_id": id}, {"$set": {"lost": True}})
-                return True
+        # Upload to Backblaze bucket in the background
+        print("Uploading preview...")
+        threading.Thread(target=upload_file, args=[id]).start()
+        return True
 
-        return False
+    # Something must have went wrong!
+    print("Something went wrong! Page source: %s" % browser.page_source)
+    if browser.page_source.lower() == "<html><head></head><body><h1>blocked from searching or viewing the ad library</h1><p>you have been temporarily blocked from searching or viewing the ad library due to too many requests. please try again later.</p></body></html>":
+        # We have got rate limited!
+        print("We've got temporarily blocked! Sleeping 1h")
+        sleep(3600)
 
-    # Convert image to JPEG
-    image = Image.open(io.BytesIO(image)).convert("RGB")
-    image.save(path, "JPEG")
+    d = browser.find_elements(By.CLASS_NAME, "_50f6")
+    if (len(c) > 0 and c[0].text == "") or (len(d) > 0 and d[0].text == "Error: invalid ID"):
+        # This ad seems to be lost!
+        # Marking the ad as lost...
+        print("Ad %s seems to be lost, marking..." % id)
+        ads.update_one({"_id": id}, {"$set": {"lost": True}})
+        return True
 
-    # Upload to Backblaze bucket in the background
-    print("Uploading preview...")
-    threading.Thread(target=upload_file, args=[id]).start()
-    return True
+    return False
 
 
 if __name__ == "__main__":
