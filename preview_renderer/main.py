@@ -7,9 +7,11 @@ from time import sleep
 from b2sdk.v2 import B2Api, SqliteAccountInfo, AuthInfoCache
 from pymongo import MongoClient
 import threading
+from random import randrange
 
 # Secrets from enviroment variables
-TOKEN = os.getenv("TOKEN")
+TOKENS = os.getenv("TOKEN").split(",")
+TOKEN = TOKENS[randrange(0, len(TOKENS))]
 RENDER_ALL = os.getenv("RENDER_ALL")
 
 # Auth to Backblaze
