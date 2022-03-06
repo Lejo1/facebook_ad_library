@@ -90,7 +90,7 @@ def load_preview(id):
         sleep(3600)
 
     d = browser.find_elements(By.CLASS_NAME, "_50f6")
-    if (len(c) > 0 and c[0].text == "") or (len(d) > 0 and d[0].text == "Error: invalid ID"):
+    if (len(c) > 0 and c[0].text == "") or (len(d) > 0 and d[0].text == "Error: invalid ID") or (browser.page_source == "<html><head></head><body>Sorry, this content isn't available right now</body></html>"):
         # This ad seems to be lost!
         # Marking the ad as lost...
         print("Ad %s seems to be lost, marking..." % id)
