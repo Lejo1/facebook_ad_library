@@ -70,7 +70,7 @@ def load_preview(id):
 
     # Select element
     c = browser.find_elements(By.CLASS_NAME, "_8n-d")
-    if len(c) > 0 and c[0].text != "":
+    if len(c) > 0 and c[0].get_attribute("innerHTML") != "" and c[0].get_attribute("innerHTML") != "<!-- react-mount-point-unstable -->":
         # Take screenshot and convert to jpg
         image = c[0].screenshot_as_png
         # Convert image to JPEG
@@ -91,7 +91,7 @@ def load_preview(id):
 
     d = browser.find_elements(By.CLASS_NAME, "_50f6")
     e = browser.find_elements(By.CSS_SELECTOR, ".core h1")
-    if (len(c) > 0 and c[0].text == "") or (len(d) > 0 and d[0].text == "Error: invalid ID") or (len(e) > 0 and e[0].text == "Sorry, something went wrong.") or (browser.page_source == "<html><head></head><body>Sorry, this content isn't available right now</body></html>"):
+    if (len(c) > 0 and (c[0].get_attribute("innerHTML") == "" or c[0].get_attribute("innerHTML") == "<!-- react-mount-point-unstable -->")) or (len(d) > 0 and d[0].text == "Error: invalid ID") or (len(e) > 0 and e[0].text == "Sorry, something went wrong.") or (browser.page_source == "<html><head></head><body>Sorry, this content isn't available right now</body></html>"):
         # This ad seems to be lost!
         # Marking the ad as lost...
         print("Ad %s seems to be lost, marking..." % id)
