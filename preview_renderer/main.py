@@ -1,5 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.firefox.options import Options
 from PIL import Image
 import io
 import os
@@ -24,7 +25,8 @@ if not info.is_same_key(os.getenv("APPLICATION_KEY_ID"), "production"):
 
 bucket = b2_api.get_bucket_by_name(os.getenv("BUCKET_NAME"))
 # Connect to selenium/standalone-firefox docker container
-browser = webdriver.Remote(command_executor=os.getenv("BROWSER_URL"))
+options = Options()
+browser = webdriver.Remote(command_executor=os.getenv("BROWSER_URL"), options=options)
 
 # Database for the queue
 # Uses an partial index on the ads collection created using:
