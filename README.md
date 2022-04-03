@@ -19,12 +19,7 @@ Also I later realized that when crawling very huge sites are empty although they
 
 ~~In the end this resulted in the ads in this dataset being less than it should be according to the reports.~~ Should be pretty accurate now.
 
-### There are two json files per zip-file download:
-
-`ads.json`: Contains the actual ads with the following fields:
-Pre V3 unreliable: `todo.json`: based on the [Ad-reports](https://www.facebook.com/ads/library/report/) and contains all pages crawled from with the timestamp of the last crawl and the paging cursor (after)  
-
-### Fields
+### Fields of the ads.json file
 - id("_id" in the table)
 - ad_creation_time
 - ad_creative_bodies
@@ -45,6 +40,7 @@ Pre V3 unreliable: `todo.json`: based on the [Ad-reports](https://www.facebook.c
 - publisher_platforms
 - spend
 - rendered (defines if the rendered version available)
+- lost (True, if the ad wasn't found while rendering)
 
 The field `ad_snapshot_url` is not crawled as it's just a combination of the id and your access token:  
 `https://www.facebook.com/ads/archive/render_ad/?id=<id>&access_token=<token>`  
@@ -58,23 +54,26 @@ For more information have a look at the `example.json` file or the description o
 
 ### Rendered Previews
 
-The script from the `preview_renderer` folder are used to take a screeshot of the relevant elements from the `ad_snapshot_url` of each ad. The rendered field defines whether the rendered image is available. `False` means the ad is queued for rendering.  
+The script from the `preview_renderer` folder is used to take a screeshot of the relevant elements from the `ad_snapshot_url` of each ad. The rendered field defines whether the rendered image is available. `False` means the ad is queued for rendering.  
 After rendering you can view them here: `https://facebook-ad-previews.nexxxt.cloud/<id>.jpg`
 
-### Available Countries
+### Available Data-Downloads
 
 #### V3
 Ads have been crawled using the empty query (*) across all countries. Should in theory now contain all ads in the library.  
 Field `rendered` added for the previews.  
 No `todo.json` collection file as the stats are wrong and weren't relevant for this crawl.  
-[Download](https://b2.nexxxt.cloud/facebook_ads/full3.zip)
+[Download](https://b2.nexxxt.cloud/facebook_ads/full3.zip) (09.02.2022)  
+[Download](https://b2.nexxxt.cloud/facebook_ads/full3.1.zip) (03.04.2022)
 
 #### V2
+**V2 and older:**  
+`todo.json`-File: based on the [Ad-reports](https://www.facebook.com/ads/library/report/) and contains all pages crawled from with the timestamp of the last crawl and the paging cursor (after)  
+
 Also contains page stats for multiple disclaimers and countries. Large pages should be complete now. Multiple reports from different dates were used for updating.  
 [Download](https://b2.nexxxt.cloud/facebook_ads/full2.zip)
 
 #### V1
-
 I first crawled the German and US Library and then decided to create a full crawl.
 
 ##### Full Crawl of all countries from all reports:
