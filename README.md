@@ -4,6 +4,8 @@ This Project aims to provide a searchable and complete copy of the political ads
 Facebook already provides all this data via their web interface. The Problem with this is that it's hardly searchable and therefore no real use for Analysis of political advertisement. In Addition to this the [API](https://www.facebook.com/ads/library/api/) is hard to access and limited in many ways.  
 This data is already meant to be public so this dataset is just helping to provide the transparency ~~Facebook~~ Meta wants to provide.
 
+**Site to Live access the Data: https://ad-archive.nexxxt.cloud**
+
 ## About the Data
 
 The data is loaded directly from their official [API](https://www.facebook.com/ads/library/api/).

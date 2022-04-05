@@ -34,3 +34,12 @@ services:
     environment:
       PYTHONUNBUFFERED: 1
     stop_signal: SIGINT
+
+  web:
+    build: ./web
+    restart: always
+    environment:
+      - GIN_MODE=release
+      - DB_URL=mongodb://...
+    ports:
+      - 8080:8080

@@ -1,0 +1,179 @@
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	"strconv"
+
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
+
+	"github.com/gin-gonic/gin"
+	"net/http"
+)
+
+// Ads returned limit
+const limit = 100
+
+func connect_db() *mongo.Client {
+	// Create a new client and connect to the server
+	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(os.Getenv("DB_URL")))
+	if err != nil {
+		panic(err)
+	}
+
+	// Ping the primary
+	if err := client.Ping(context.Background(), readpref.Primary()); err != nil {
+		panic(err)
+	}
+	fmt.Println("Successfully connected and pinged the db.")
+
+	return client
+}
+
+// Database and Collection
+var client *mongo.Client = connect_db()
+var db *mongo.Database = client.Database("facebook_ads_full")
+var ads *mongo.Collection = db.Collection("ads")
+
+// Get Total Ad count
+// GET /total
+func getTotalAds(c *gin.Context)  {
+	count, err := ads.EstimatedDocumentCount(context.TODO())
+	if err != nil {
+		c.String(http.StatusInternalServerError, "Failed to retrieve document count")
+		return
+	}
+	c.String(http.StatusOK, strconv.FormatInt(count, 10))
+}
+
+// Single Ad Request
+// GET /ad/id
+func getAd(c *gin.Context) {
+	id := c.Param("id")
+	filter := bson.D{{"_id", id}}
+
+	var result bson.M
+	if err := ads.FindOne(context.TODO(), filter).Decode(&result); err != nil {
+		c.String(http.StatusNotFound, "Ad not found")
+		return
+	}
+	c.JSON(http.StatusOK, result)
+}
+
+// Ads by page
+// GET /adbypage/page_id?offset=0
+func getAdsByPage(c *gin.Context) {
+	id := c.Param("id")
+	param := c.DefaultQuery("offset", "0")
+	offset, err := strconv.ParseInt(param, 10, 64)
+	if err != nil {
+		c.String(http.StatusBadRequest, "Invalid Offset")
+		return
+	}
+	filter := bson.D{{"page_id", id}}
+
+	cursor, err := ads.Find(context.TODO(), filter, options.Find().SetSkip(offset).SetLimit(limit))
+	if err != nil {
+		c.String(http.StatusInternalServerError, "Error finding ads")
+		return
+	}
+	var result []bson.M
+	if err = cursor.All(context.TODO(), &result); err != nil {
+		c.String(http.StatusInternalServerError, "Error unpacking ads")
+		return
+	}
+	c.JSON(http.StatusOK, result)
+}
+
+// Search ads by page name or disclaimer
+// GET /search/query?offset=0
+func searchByPage(c *gin.Context) {
+	id := c.Param("search")
+	param := c.DefaultQuery("offset", "0")
+	offset, err := strconv.ParseInt(param, 10, 64)
+	if err != nil {
+		c.String(http.StatusBadRequest, "Invalid Offset")
+		return
+	}
+	filter := bson.M{
+		"$text": bson.M{
+			"$search": id,
+		},
+	}
+
+	cursor, err := ads.Find(context.TODO(), filter, options.Find().SetSkip(offset).SetLimit(limit))
+	if err != nil {
+		c.String(http.StatusInternalServerError, "Error searching for ads")
+		return
+	}
+	var result []bson.M
+	if err = cursor.All(context.TODO(), &result); err != nil {
+		c.String(http.StatusInternalServerError, "Error unpacking ads")
+		return
+	}
+	c.JSON(http.StatusOK, result)
+}
+
+// Get lost ads
+// GET /lostads?offset=0
+func getLostAds(c *gin.Context) {
+	param := c.DefaultQuery("offset", "0")
+	offset, err := strconv.ParseInt(param, 10, 64)
+	if err != nil {
+		c.String(http.StatusBadRequest, "Invalid Offset")
+		return
+	}
+	filter := bson.D{{"lost", true}}
+
+	cursor, err := ads.Find(context.TODO(), filter, options.Find().SetSkip(offset).SetLimit(limit))
+	if err != nil {
+		c.String(http.StatusInternalServerError, "Error finding ads")
+		return
+	}
+	var result []bson.M
+	if err = cursor.All(context.TODO(), &result); err != nil {
+		c.String(http.StatusInternalServerError, "Error unpacking ads")
+		return
+	}
+	c.JSON(http.StatusOK, result)
+}
+
+// Queue an Ad to preview rendering
+// POST /render_preview/id
+func queuePreview(c *gin.Context) {
+	id := c.Param("id")
+	filter := bson.D{{"_id", id}, {"rendered", bson.M{"$exists": false}}}
+	update := bson.D{{"$set", bson.D{{"rendered", false}}}}
+
+	result, err := ads.UpdateOne(context.TODO(), filter, update)
+	if err != nil {
+		c.String(http.StatusInternalServerError, "Error updating the ad.")
+		return
+	}
+	if result.MatchedCount == 0 {
+		c.String(http.StatusNotFound, "Ad not found or already queued for rendering.")
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Queued ad for rendering."})
+}
+
+func main() {
+	defer func() {
+		client.Disconnect(context.Background())
+	}()
+
+	router := gin.Default()
+	router.StaticFile("/", "frontend.html")
+	router.GET("/total", getTotalAds)
+	router.GET("/ad/:id", getAd)
+	router.GET("/adsbypage/:id", getAdsByPage)
+	router.GET("/search/:search", searchByPage)
+	router.GET("/lostads", getLostAds)
+	router.POST("/render_preview/:id", queuePreview)
+
+	router.Run()
+}

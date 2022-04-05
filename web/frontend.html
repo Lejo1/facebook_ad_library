@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js" integrity="sha256-kXTEJcRFN330VirZFl6gj9+UM6gIKW195fYZeR3xDhc=" crossorigin="anonymous"></script>
+  <title>Facebook Ad Archive</title>
+</head>
+
+<body>
+  <main id="main" class="container-fluid">
+    <br>
+    <div class="container bg-light rounded-3">
+      <h1>Facebook Ad Archive</h1>
+      This Project aims to provide a searchable and complete copy of the political ads on the <a href="https://www.facebook.com/ads/library/" target="_blank">Facebook Ad Library</a>
+      <p>You can find further information on the source of the data and whole database downloads on <a href="https://github.com/Lejo1/facebook_ad_library">Github</a></p>
+      Here you can display ads by their ad/page id or search for them by their page name and disclaimer.
+      <p>There are total <b>{{ total_ads }}</b> ads in the archive.</p>
+    </div><br>
+    <div class="container bg-light rounded-3">
+      <h2>Single Ad</h2>
+      <form v-on:submit="load" class="input-group">
+        <input v-model="input" type="text" class="form-control" placeholder="Ad-Id">
+        <button type="submit" name="button" class="btn btn-success">Load</button>
+      </form><br>
+      <alert v-model="msg" kind="danger"></alert>
+      <ad v-if="ad.length != 0" v-bind:data="ad"></ad><br>
+    </div><br>
+    <div class="container-fluid bg-light rounded-3">
+      <h2>Find Ads by Page ID or Page Name and Disclaimer</h2>
+      <adform></adform><br>
+    </div><br>
+    <div class="container-fluid bg-light rounded-3">
+      <h2>Show Lost Ads</h2>
+      <p>These Ads weren't found on the Facebook Ad Library while trying to render them. This doesn't has to mean they are still lost!</p>
+      <button v-on:click="$refs.lostads.submit()" type="submit" name="button" class="btn btn-success">Load</button><br><br>
+      <adlist ref="lostads" endpoint="/lostads" input=""></adlist><br>
+    </div>
+  </main><br>
+</body>
+<footer class="container bg-light rounded-3">
+  <div class="row">
+    <div class="col">
+      <h5>Notes:</h5>
+      <p>The data was automatically crawled as described on Github. This of course also means that there might be wrong or missing data. Also the search might not always return the data you expect it to. Please contact me if you notice anything
+        wrong!</p>
+    </div>
+    <div class="col">
+      <h5>Links/Contact:</h5>
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-github" viewBox="0 0 16 16">
+        <path
+          d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z" />
+      </svg> <a href="https://github.com/Lejo1/facebook_ad_library">Github Project</a><br>
+      E-Mail: <a class="col" href="mailto:ad-archive@nexxxt.cloud">ad-archive@nexxxt.cloud</a>
+    </div>
+  </div>
+  <p>This site is still under construction!</p>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios@0.25.0/dist/axios.min.js" integrity="sha256-sAgoqllJaAcfBihBgzVT+YVBhFBh4tHDFE2keszllA0=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js" integrity="sha256-Y26AMvaIfrZ1EQU49pf6H4QzVTrOI8m9wQYKkftBt4s=" crossorigin="anonymous"></script>
+<script>
+  // Chart Consts
+  const backgroundColors = [
+    'rgba(255, 99, 132, 0.2)',
+    'rgba(54, 162, 235, 0.2)',
+    'rgba(255, 206, 86, 0.2)',
+    'rgba(75, 192, 192, 0.2)',
+    'rgba(153, 102, 255, 0.2)',
+    'rgba(255, 159, 64, 0.2)'
+  ];
+  const borderColors = [
+    'rgba(255, 99, 132, 1)',
+    'rgba(54, 162, 235, 1)',
+    'rgba(255, 206, 86, 1)',
+    'rgba(75, 192, 192, 1)',
+    'rgba(153, 102, 255, 1)',
+    'rgba(255, 159, 64, 1)'
+  ];
+
+  // Alert element
+  Vue.component('alert', {
+    model: {
+      prop: "msg",
+      event: "clear"
+    },
+    props: ["kind", "msg"],
+    template: `<div v-show="msg.length != 0" v-bind:class="[colour]" class="alert alert-dismissible">
+<button v-on:click="dissmiss" type="button" class="btn-close"></button>
+<strong>{{ header }}</strong> {{ msg }}
+</div>`,
+    methods: {
+      dissmiss: function() {
+        this.$emit("clear", "");
+      }
+    },
+    computed: {
+      colour: function() {
+        return "alert-" + this.kind
+      },
+      header: function() {
+        return ((this.kind == "danger") ? "Error:" : "Success:")
+      }
+    },
+  });
+
+  // Make bound texts
+  function text_bounds(d) {
+    if (d.lower_bound) {
+      if (d.upper_bound) {
+        return d.lower_bound + "-" + d.upper_bound
+      } else {
+        return ">" + d.lower_bound
+      }
+    } else {
+      return "<" + d.upper_bound
+    }
+  }
+
+  function arrsize(arr) {
+    if (arr && arr.length) {
+      return arr.length
+    }
+    return 0
+  }
+
+  function c_exists(data, i) {
+    if (data && data[i] && data[i].trim().length != 0) {
+      return true;
+    }
+    return false;
+  }
+
+  Vue.mixin({
+    methods: {
+      c_exists: c_exists,
+    },
+  })
+
+  // One Ad Component
+  Vue.component('ad', {
+    props: ["data"],
+    template: `<div class="card border-dark shadow">
+    <div class="card-header">
+      <a v-bind:href="adlink" target="_blank">{{ data._id }}</a>
+      <a v-bind:href="liblink" target="_blank"><span class="badge rounded-pill bg-dark">View in Ad-Lib</span></a>
+      <a v-bind:href="renderlink" target="_blank"><span class="badge rounded-pill bg-success">Render</span></a>
+      <a v-bind:href="rawlink" target="_blank"><span class="badge rounded-pill bg-primary">Raw Data</span></a>
+    </div>
+    <div class="card-body">
+      <h5 class="card-title">{{ data.page_name }} ({{ data.page_id }})</h5>
+      <h6 v-if="data.bylines" class="card-subtitle mb-2 text-muted">Payed by: {{ data.bylines }}</h6>
+    </div>
+    <ul v-if="content_index > 0" class="list-group list-group-flush">
+    <li v-for="(n, i) in content_index" class="list-group-item">
+      <p v-if="c_exists(data.ad_creative_bodies, i)" class="card-text" style="white-space:pre-wrap;">{{ data.ad_creative_bodies[i] }}</p>
+      <a v-if="c_exists(data.ad_creative_link_captions, i) || c_exists(data.ad_creative_link_titles, i) || c_exists(data.ad_creative_link_descriptions, i)" v-bind:href="makelink(i)" class="card-link" target="_blank">
+        <template v-if="c_exists(data.ad_creative_link_captions, i)">{{ data.ad_creative_link_captions[i] }}<br></template>
+        <h6 v-if="c_exists(data.ad_creative_link_titles, i)" class="card-title">{{ data.ad_creative_link_titles[i] }}</h6>
+        <h6 v-if="c_exists(data.ad_creative_link_descriptions, i)" class="card-subtitle mb-2 text-muted">{{ data.ad_creative_link_descriptions[i] }}</h6>
+      </a>
+    </li>
+    </ul>
+    <ul class="list-group list-group-flush">
+      <li class="list-group-item"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar-plus" viewBox="0 0 16 16">
+<path d="M8 7a.5.5 0 0 1 .5.5V9H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V10H6a.5.5 0 0 1 0-1h1.5V7.5A.5.5 0 0 1 8 7z"/>
+<path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+</svg> Created: <b>{{ data.ad_creation_time }}</b></li>
+      <li v-if="data.ad_delivery_start_time" class="list-group-item"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar-range" viewBox="0 0 16 16">
+<path d="M9 7a1 1 0 0 1 1-1h5v2h-5a1 1 0 0 1-1-1zM1 9h4a1 1 0 0 1 0 2H1V9z"/>
+<path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+</svg> Delivered: <b>{{ data.ad_delivery_start_time }} to {{ (this.data.ad_delivery_stop_time ? this.data.ad_delivery_stop_time : "date") }}</b></li>
+      <li v-if="data.publisher_platforms" class="list-group-item"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-app" viewBox="0 0 16 16">
+  <path d="M11 2a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V5a3 3 0 0 1 3-3h6zM5 1a4 4 0 0 0-4 4v6a4 4 0 0 0 4 4h6a4 4 0 0 0 4-4V5a4 4 0 0 0-4-4H5z"/>
+</svg> Platforms:<b v-for="p in data.publisher_platforms"> {{ p }}</b></li>
+      <li v-if="data.estimated_audience_size" class="list-group-item"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-people" viewBox="0 0 16 16">
+  <path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1h8zm-7.978-1A.261.261 0 0 1 7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002a.274.274 0 0 1-.014.002H7.022zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM6.936 9.28a5.88 5.88 0 0 0-1.23-.247A7.35 7.35 0 0 0 5 9c-4 0-5 3-5 4 0 .667.333 1 1 1h4.216A2.238 2.238 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816zM4.92 10A5.493 5.493 0 0 0 4 13H1c0-.26.164-1.03.76-1.724.545-.636 1.492-1.256 3.16-1.275zM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0zm3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/>
+</svg> Estimated Audience: <b>{{ estimated_audience }}</b></li>
+      <li v-if="data.spend" class="list-group-item"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-coin" viewBox="0 0 16 16">
+  <path d="M5.5 9.511c.076.954.83 1.697 2.182 1.785V12h.6v-.709c1.4-.098 2.218-.846 2.218-1.932 0-.987-.626-1.496-1.745-1.76l-.473-.112V5.57c.6.068.982.396 1.074.85h1.052c-.076-.919-.864-1.638-2.126-1.716V4h-.6v.719c-1.195.117-2.01.836-2.01 1.853 0 .9.606 1.472 1.613 1.707l.397.098v2.034c-.615-.093-1.022-.43-1.114-.9H5.5zm2.177-2.166c-.59-.137-.91-.416-.91-.836 0-.47.345-.822.915-.925v1.76h-.005zm.692 1.193c.717.166 1.048.435 1.048.91 0 .542-.412.914-1.135.982V8.518l.087.02z"/>
+  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+  <path d="M8 13.5a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11zm0 .5A6 6 0 1 0 8 2a6 6 0 0 0 0 12z"/>
+</svg> Spend: <b>{{ spend }} ({{ data.currency }})</b></li>
+      <li v-if="data.impressions" class="list-group-item"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">
+  <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
+  <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
+</svg> Impressions: <b>{{ impressions }}</b></li>
+      <li v-if="data.languages" class="list-group-item"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-globe" viewBox="0 0 16 16">
+  <path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm7.5-6.923c-.67.204-1.335.82-1.887 1.855A7.97 7.97 0 0 0 5.145 4H7.5V1.077zM4.09 4a9.267 9.267 0 0 1 .64-1.539 6.7 6.7 0 0 1 .597-.933A7.025 7.025 0 0 0 2.255 4H4.09zm-.582 3.5c.03-.877.138-1.718.312-2.5H1.674a6.958 6.958 0 0 0-.656 2.5h2.49zM4.847 5a12.5 12.5 0 0 0-.338 2.5H7.5V5H4.847zM8.5 5v2.5h2.99a12.495 12.495 0 0 0-.337-2.5H8.5zM4.51 8.5a12.5 12.5 0 0 0 .337 2.5H7.5V8.5H4.51zm3.99 0V11h2.653c.187-.765.306-1.608.338-2.5H8.5zM5.145 12c.138.386.295.744.468 1.068.552 1.035 1.218 1.65 1.887 1.855V12H5.145zm.182 2.472a6.696 6.696 0 0 1-.597-.933A9.268 9.268 0 0 1 4.09 12H2.255a7.024 7.024 0 0 0 3.072 2.472zM3.82 11a13.652 13.652 0 0 1-.312-2.5h-2.49c.062.89.291 1.733.656 2.5H3.82zm6.853 3.472A7.024 7.024 0 0 0 13.745 12H11.91a9.27 9.27 0 0 1-.64 1.539 6.688 6.688 0 0 1-.597.933zM8.5 12v2.923c.67-.204 1.335-.82 1.887-1.855.173-.324.33-.682.468-1.068H8.5zm3.68-1h2.146c.365-.767.594-1.61.656-2.5h-2.49a13.65 13.65 0 0 1-.312 2.5zm2.802-3.5a6.959 6.959 0 0 0-.656-2.5H12.18c.174.782.282 1.623.312 2.5h2.49zM11.27 2.461c.247.464.462.98.64 1.539h1.835a7.024 7.024 0 0 0-3.072-2.472c.218.284.418.598.597.933zM10.855 4a7.966 7.966 0 0 0-.468-1.068C9.835 1.897 9.17 1.282 8.5 1.077V4h2.355z"/>
+</svg> Languages: <b v-for="l in data.languages"> {{ l }}</b></li>
+      <li v-if="data.delivery_by_region" class="list-group-item"><canvas ref="region_chart"></canvas></li>
+      <li v-if="data.demographic_distribution" class="list-group-item"><canvas ref="demo_chart"></canvas></li>
+    </ul>
+    <div class="card-footer text-center">
+      <b v-if="data.lost">This Ad was not found while rendering and seems to be lost!</b>
+      <template v-else>
+        <alert v-model="msg" v-bind:kind="kind"></alert>
+        <a v-if="data.rendered" v-on:click="togglepreview" class="btn btn-primary">Toggle preview</a>
+        <a v-else v-on:click="renderpreview" class="btn btn-success"><span v-show="rendering" class="spinner-border spinner-border-sm"></span> Render preview</a>
+      </template>
+    </div>
+    <div v-if="data.rendered && !data.lost" class="collapse" ref="preview_collapse">
+      <img v-if="load_preview" v-bind:src="imglink" alt="Ad Preview" class="card-img-bottom">
+    </div>
+    </div>`,
+    data() {
+      return {
+        rendering: false,
+        msg: "",
+        kind: "success",
+        load_preview: false
+      };
+    },
+    methods: {
+      makelink: function(i) {
+        let url = " ";
+        if (c_exists(this.data.ad_creative_link_captions, i)) {
+          url = this.data.ad_creative_link_captions[i];
+        }
+        if (!/^https?:\/\//i.test(url)) {
+          url = 'http://' + url;
+        }
+        return url
+      },
+      togglepreview: function() {
+        this.load_preview = true;
+        (new bootstrap.Collapse(this.$refs.preview_collapse)).toggle();
+      },
+      renderpreview: function() {
+        this.rendering = true;
+        const vm = this;
+        axios.post('/render_preview/' + this.data._id)
+          .then(function(response) {
+            vm.msg = response.data.message;
+            vm.kind = "success";
+          })
+          .catch(function(error) {
+            vm.msg = error.response.data;
+            vm.kind = "danger";
+          })
+          .then(function() {
+            vm.rendering = false;
+          });
+      }
+    },
+    computed: {
+      adlink: function() {
+        return "/#" + this.data._id
+      },
+      liblink: function() {
+        return "https://www.facebook.com/ads/library/?id=" + this.data._id
+      },
+      renderlink: function() {
+        return "https://render-facebook-ad.lejo.workers.dev/" + this.data._id
+      },
+      rawlink: function() {
+        return "/ad/" + this.data._id
+      },
+      content_index: function() {
+        let out = 0;
+        const max = Math.max(arrsize(this.data.ad_creative_bodies), arrsize(this.data.ad_creative_link_captions), arrsize(this.data.ad_creative_link_titles), arrsize(this.data.ad_creative_link_descriptions))
+        for (let i = 0; i < max; i++) {
+          if (c_exists(this.data.ad_creative_bodies, i) || c_exists(this.data.ad_creative_link_captions, i) || c_exists(this.data.ad_creative_link_titles, i) || c_exists(this.data.ad_creative_link_descriptions, i)) {
+            out = i + 1;
+          }
+        }
+        return out
+      },
+      estimated_audience: function() {
+        return text_bounds(this.data.estimated_audience_size)
+      },
+      spend: function() {
+        return text_bounds(this.data.spend)
+      },
+      impressions: function() {
+        return text_bounds(this.data.impressions)
+      },
+      imglink: function() {
+        return "https://facebook-ad-previews.nexxxt.cloud/" + this.data._id + ".jpg"
+      }
+    },
+    mounted: function() {
+      if (this.data.delivery_by_region) {
+        const ctx = this.$refs.region_chart;
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            datasets: [{
+              label: 'Delivery by Region',
+              data: this.data.delivery_by_region,
+              backgroundColor: backgroundColors,
+              borderColor: borderColors,
+              borderWidth: 1
+            }]
+          },
+          options: {
+            plugins: {
+              title: {
+                display: true,
+                text: 'Delivery by Region'
+              }
+            },
+            parsing: {
+              xAxisKey: 'region',
+              yAxisKey: 'percentage'
+            }
+          }
+        });
+      }
+      if (this.data.demographic_distribution) {
+        const ctx = this.$refs.demo_chart;
+        let gender_map = {};
+        let age_map = {};
+        let out = [];
+        this.data.demographic_distribution.forEach((item, i) => {
+          const gender = item.gender;
+          const age = item.age;
+          if (age_map[age] == undefined) {
+            age_map[age] = Object.keys(age_map).length;
+          }
+          if (gender_map[gender] == undefined) {
+            gender_map[gender] = Object.keys(gender_map).length;
+            out[gender_map[gender]] = {
+              label: gender,
+              data: [],
+              backgroundColor: backgroundColors[gender_map[gender]],
+              borderColor: borderColors[gender_map[gender]],
+              borderWidth: 1
+            };
+          }
+          out[gender_map[gender]].data[age_map[age]] = item.percentage;
+        });
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: Object.keys(age_map),
+            datasets: out
+          },
+          options: {
+            plugins: {
+              title: {
+                display: true,
+                text: 'Demographic Distribution'
+              }
+            },
+            scales: {
+              x: {
+                stacked: true
+              },
+              y: {
+                stacked: true
+              }
+            }
+          }
+        });
+      }
+    }
+  });
+
+  // Ad List
+  Vue.component('adlist', {
+    props: ["endpoint", "input"],
+    template: `<div><alert v-model="msg" kind="danger"></alert>
+    <div v-if="ads.length != 0">
+      <div class="row">
+      <div v-for="ad in ads" class="col-sm-6 col-lg-4 mb-4">
+        <ad v-bind:data="ad" v-bind:key="ad._id"></ad>
+      </div>
+      </div>
+      <div class="text-center">
+        <a v-if="next" v-on:click="load" class="btn" title="Load More">Load more
+          <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-chevron-down" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z" />
+          </svg>
+        </a>
+        <p v-else>You've reached the end of your query.</p>
+      </div>
+    </div>
+    <div v-show="loading" class="text-center">
+    <div class="spinner-grow" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    </div>
+    </div>`,
+    data() {
+      return {
+        msg: "",
+        ads: [],
+        next: true,
+        loading: false
+      };
+    },
+    methods: {
+      load: function() {
+        const vm = this;
+        this.loading = true;
+        axios.get(this.endpoint + this.input + "?offset=" + this.ads.length)
+          .then(function(response) {
+            if (response.data == null) {
+              vm.msg = "No (more) ads found!";
+              vm.next = false;
+            } else {
+              vm.ads = vm.ads.concat(response.data);
+              if (response.data.length < 100) {
+                vm.next = false;
+              }
+            }
+          })
+          .catch(function(error) {
+            vm.msg = error.response.data;
+            vm.next = false;
+          })
+          .then(function() {
+            vm.loading = false;
+          });
+      },
+      submit: function() {
+        this.ads = [];
+        this.next = true;
+        this.load();
+      }
+    }
+  })
+
+  // Ad Form
+  Vue.component('adform', {
+    template: `<div>
+    <form v-on:submit="submit" class="input-group">
+      <input v-model="input" type="text" class="form-control" placeholder="Page Id or Search">
+      <button type="submit" name="button" class="btn btn-success">Load</button>
+    </form><br>
+    <adlist ref="adlist" v-bind:endpoint='isNaN(input) ? "/search/" : "/adsbypage/"' v-bind:input="input"></adlist>
+    </div>`,
+    data() {
+      return {
+        input: "",
+      };
+    },
+    methods: {
+      submit: function(e) {
+        e.preventDefault();
+        this.$refs.adlist.submit();
+      }
+    },
+  });
+
+  // Vuejs
+  var main = new Vue({
+    el: "#main",
+    data: {
+      total_ads: "Loading...",
+      input: window.location.hash.substring(1),
+      msg: "",
+      ad: []
+    },
+    methods: {
+      load: function(e) {
+        if (e) {
+          e.preventDefault();
+        }
+        this.ad = [];
+        const vm = this;
+        axios.get('/ad/' + this.input)
+          .then(function(response) {
+            vm.ad = response.data;
+          })
+          .catch(function(error) {
+            vm.msg = error.response.data;
+          });
+      }
+    },
+    mounted: function() {
+      const vm = this;
+      axios.get('/total')
+        .then(function(response) {
+          vm.total_ads = response.data;
+        })
+        .catch(function(error) {
+          vm.total_ads = error.response.data;
+        });
+      if (window.location.hash != "") {
+        this.load();
+      }
+    }
+  });
+</script>
+
+</html>
