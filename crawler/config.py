@@ -15,6 +15,10 @@ FIELDS = "id,ad_creation_time,ad_creative_bodies,ad_creative_link_captions,ad_cr
 # 5000 would be the maximum allowed.
 LIMIT = 100
 
+# Amount of Crawls until to stop a quick crawler
+# These are used to crawl the newly created Ads every hour
+HOURLY_LIMIT = 500
+
 # These are from the javascript of this site: https://www.facebook.com/ads/library/report/
 COUNTRIES = {
     "US": "United States",

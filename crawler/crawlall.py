@@ -27,11 +27,12 @@ class Crawler(Thread):
     This one doesn't crawl per page_id but accross the whole library
     using an empty query (*)"""
 
-    def __init__(self, after="", min=0, max=len(config.TOKENS)):
+    def __init__(self, after="", min=0, max=len(config.TOKENS), c_limit=0):
         Thread.__init__(self)
         self.after = after
         self.min = min
         self.max = max
+        self.c_limit = c_limit
         self.delayed = [0 for a in range(max)]
         self.tround = min
 
@@ -68,8 +69,10 @@ class Crawler(Thread):
     def run(self):
         limit = config.LIMIT
         retried = 0
+        count = 0
         global _RUN
-        while _RUN:
+        while _RUN and (self.c_limit == 0 or self.c_limit > count):
+            count += 1
             try:
                 print("Running link... After: %s" % self.after)
                 firsturl = config.URL + "?access_token=%s&search_terms=*&ad_reached_countries=%s&ad_active_status=ALL&fields=%s&limit=%i" % (
@@ -164,12 +167,18 @@ if __name__ == "__main__":
     threads = []
     try:
         while True:
-            print("Spawning Crawling Thread")
-            t = Crawler(after, 0, len(config.TOKENS))
-            t.start()
-            threads.append(t)
-            print("Waiting 1 day to spawn the next Thread")
-            time.sleep(86400)
+            for i in range(24):
+                print("Spawning Crawling Thread, Hour: %i" % i)
+                c_limit = config.HOURLY_LIMIT
+                if i == 0:
+                    print("Crawling Completly! Next Complete-Crawl in 1 day")
+                    c_limit = 0
+
+                t = Crawler(after, 0, len(config.TOKENS), c_limit)
+                t.start()
+                threads.append(t)
+                print("Waiting 1 hour to spawn the next Thread")
+                time.sleep(3600)
 
     except KeyboardInterrupt:
         print("Got Interrupt, Stopping...")
