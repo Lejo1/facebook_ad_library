@@ -66,7 +66,8 @@ Ads have been crawled using the empty query (*) across all countries. Should in 
 Field `rendered` added for the previews.  
 No `todo.json` collection file as the stats are wrong and weren't relevant for this crawl.  
 [Download](https://b2.nexxxt.cloud/facebook_ads/full3.zip) (09.02.2022)  
-[Download](https://b2.nexxxt.cloud/facebook_ads/full3.1.zip) (03.04.2022)
+[Download](https://b2.nexxxt.cloud/facebook_ads/full3.1.zip) (03.04.2022)  
+[Download](https://b2.nexxxt.cloud/facebook_ads/full3.2.zip) (26.05.2022)
 
 #### V2
 **V2 and older:**  
