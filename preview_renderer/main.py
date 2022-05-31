@@ -4,7 +4,7 @@ from selenium.webdriver.firefox.options import Options
 from PIL import Image
 import io
 import os
-from time import sleep
+from time import time, sleep
 from b2sdk.v2 import B2Api, SqliteAccountInfo, AuthInfoCache
 from pymongo import MongoClient
 import threading
@@ -26,17 +26,23 @@ if not info.is_same_key(os.getenv("APPLICATION_KEY_ID"), "production"):
 bucket = b2_api.get_bucket_by_name(os.getenv("BUCKET_NAME"))
 # Connect to selenium/standalone-firefox docker container
 options = Options()
-browser = webdriver.Remote(command_executor=os.getenv("BROWSER_URL"), options=options)
+browser = webdriver.Remote(
+    command_executor=os.getenv("BROWSER_URL"), options=options)
 
 # Database for the queue
-# Uses an partial index on the ads collection created using:
-# db.ads.createIndex({"rendered": 1}, { partialFilterExpression: {rendered: { $eq: false } } })
-# So when an ad contains the field {rendered: false} it will be rendered and the field changes to true
+# The queue is done by the rendering_started field created using:
+# db.ads.createIndex({"rendering_started": 1}, { partialFilterExpression: {rendering_started: { $exists: true } } })
+# if the value is lower then the current unix time-300 then the ad will be rendered.
+# This allows queuing by setting rendering_started=0 and handles automated rendering failture
 # The rendered image will then be uploaded to a storage bucket
+# rendered defines if the ad has already been rendered
+# if RENDER_ALL is True the worker will also work on new ads without the rendered field
 db = MongoClient(os.getenv("DBURL"))["facebook_ads_full"]
 ads = db["ads"]
 
 # Upload the saved file to the Backblaze bucket
+
+
 def upload_file(id):
     filename = "%s.jpg" % id
     path = "/out/" + filename
@@ -45,8 +51,12 @@ def upload_file(id):
         file_name=filename,
     )
     print("Added %s to storage bucket" % id)
+    ads.update_one({"_id": id}, {"$set": {"rendered": True},
+                   "$unset": {"rendering_started": ""}})
 
 # Load the preview of the image per id
+
+
 def load_preview(id):
     print("Rendering id=%s" % id)
     # Load ad_snapshot_url (can be returned by Facebook API)
@@ -97,7 +107,8 @@ def load_preview(id):
         # This ad seems to be lost!
         # Marking the ad as lost...
         print("Ad %s seems to be lost, marking..." % id)
-        ads.update_one({"_id": id}, {"$set": {"lost": True}})
+        ads.update_one({"_id": id}, {"$set": {"rendered": False,
+                       "lost": True}, "$unset": {"rendering_started": ""}})
         return True
 
     return False
@@ -108,20 +119,20 @@ if __name__ == "__main__":
     try:
         print("All initalized, watching queue... RENDER_ALL=%s" % RENDER_ALL)
         while True:
-            # Pull one item from the queue (partial index on the ads collection) and remove it from there
+            now = int(time())
+            # Pull one item from the queue (rendering_started=0)
             x = ads.find_one_and_update(
-                {"rendered": False}, {"$set": {"rendered": True}})
+                {"rendering_started": {"$lt": now - 300}}, {"$set": {"rendered": False, "rendering_started": now}})
 
             if x == None:
                 # Is this worker supposed to just render everything?
                 if RENDER_ALL == "true":
                     # Getting ad with nonexisting renderer field (not queued)
                     x = ads.find_one_and_update(
-                        {"rendered": {"$exists": False}}, {"$set": {"rendered": True}})
+                        {"rendered": {"$exists": False}}, {"$set": {"rendered": False, "rendering_started": now}})
 
             if x != None:
-                if load_preview(x["_id"]) == False:
-                    ads.update_one({"_id": x["_id"]}, {"$set": {"rendered": False}})
+                load_preview(x["_id"])
 
             else:
                 sleep(10)
@@ -136,7 +147,8 @@ if __name__ == "__main__":
         print("Error occured: %s" % str(e))
 
     if x != None:
-        ads.update_one({"_id": x["_id"]}, {"$set": {"rendered": False}})
+        ads.update_one({"_id": x["_id"]}, {
+                       "$set": {"rendered": False, "rendering_started": 0}})
         print("Queuing %s for redo" % x["_id"])
 
     try:

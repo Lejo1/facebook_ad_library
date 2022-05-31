@@ -56,7 +56,7 @@ For more information have a look at the `example.json` file or the description o
 
 ### Rendered Previews
 
-The script from the `preview_renderer` folder is used to take a screeshot of the relevant elements from the `ad_snapshot_url` of each ad. The rendered field defines whether the rendered image is available. `False` means the ad is queued for rendering.  
+The script from the `preview_renderer` folder is used to take a screeshot of the relevant elements from the `ad_snapshot_url` of each ad. The rendered field defines whether the rendered image is available. The `rendering_started` field is used for queuing the ads for rendering.
 After rendering you can view them here: `https://facebook-ad-previews.nexxxt.cloud/<id>.jpg`
 
 ### Available Data-Downloads

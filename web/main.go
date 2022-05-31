@@ -147,7 +147,7 @@ func getLostAds(c *gin.Context) {
 func queuePreview(c *gin.Context) {
 	id := c.Param("id")
 	filter := bson.D{{"_id", id}, {"rendered", bson.M{"$exists": false}}}
-	update := bson.D{{"$set", bson.D{{"rendered", false}}}}
+	update := bson.D{{"$set", bson.D{{"rendered", false}, {"rendering_started", 0}}}}
 
 	result, err := ads.UpdateOne(context.TODO(), filter, update)
 	if err != nil {
