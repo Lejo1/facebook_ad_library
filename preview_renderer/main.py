@@ -103,7 +103,7 @@ def load_preview(id):
 
     d = browser.find_elements(By.CLASS_NAME, "_50f6")
     e = browser.find_elements(By.CSS_SELECTOR, ".core h1")
-    if (len(c) > 0 and (c[0].get_attribute("innerHTML") == "" or c[0].get_attribute("innerHTML") == "<!-- react-mount-point-unstable -->")) or (len(d) > 0 and d[0].text.lower() == "error: invalid id") or (len(e) > 0 and e[0].text == "Sorry, something went wrong.") or (browser.page_source == "<html><head></head><body>Sorry, this content isn't available right now</body></html>"):
+    if (len(c) > 0 and (c[0].get_attribute("innerHTML") == "" or c[0].get_attribute("innerHTML") == "<!-- react-mount-point-unstable -->")) or (len(d) > 0 and d[0].text.lower() == "error: invalid id") or (len(e) > 0 and e[0].text == "Sorry, something went wrong.") or (browser.page_source == "<html><head></head><body>Sorry, this content isn't available right now</body></html>") or (browser.page_source == "<html><head></head><body><h1>profile is not linked to delegate page</h1><p>profile should always be linked to delegate page</p></body></html>"):
         # This ad seems to be lost!
         # Marking the ad as lost...
         print("Ad %s seems to be lost, marking..." % id)
