@@ -153,7 +153,7 @@
       <a v-bind:href="rawlink" target="_blank"><span class="badge rounded-pill bg-primary">Raw Data</span></a>
     </div>
     <div class="card-body">
-      <h5 class="card-title">{{ data.page_name }} ({{ data.page_id }})</h5>
+      <h5 class="card-title"><a v-bind:href="pagelink" target="_blank">{{ data.page_name }}</a> ({{ data.page_id }})</h5>
       <h6 v-if="data.bylines" class="card-subtitle mb-2 text-muted">Payed by: {{ data.bylines }}</h6>
     </div>
     <ul v-if="content_index > 0" class="list-group list-group-flush">
@@ -260,6 +260,9 @@
       },
       rawlink: function() {
         return "/ad/" + this.data._id
+      },
+      pagelink: function() {
+        return "https://www.facebook.com/ads/library/?active_status=all&ad_type=all&country=ALL&view_all_page_id=" + this.data.page_id + "&search_type=page&media_type=all"
       },
       content_index: function() {
         let out = 0;
