@@ -61,6 +61,13 @@ After rendering you can view them here: `https://facebook-ad-previews.nexxxt.clo
 
 ### Available Data-Downloads
 
+#### V4
+Downloading the database into a JSON file and compressing it took me increasingly long. That's why I switched to compressed [BSON](https://en.wikipedia.org/wiki/BSON) files (bson.gz). These are native to mongodb and can be created way faster and more reliable.  
+These are created using the [mongodump](https://www.mongodb.com/docs/database-tools/mongodump/) tool and can be loaded into your own mongodb using [mongorestore](https://www.mongodb.com/docs/database-tools/mongorestore/). You can also convert them into normal json files using their [bsondump](https://www.mongodb.com/docs/database-tools/bsondump/) tool.  
+In addition to this you can use the metadata file to restore the indices used in my database.  
+[Download](https://b2.nexxxt.cloud/facebook_ads/full4/ads.bson.gz) [Metadata](https://b2.nexxxt.cloud/facebook_ads/full4/ads.metadata.json.gz) (07.09.2022)  
+
+
 #### V3
 Ads have been crawled using the empty query (*) across all countries. Should in theory now contain all ads in the library.  
 Field `rendered` added for the previews.  
