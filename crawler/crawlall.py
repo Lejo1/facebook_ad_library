@@ -45,11 +45,10 @@ class Crawler(Thread):
                 headers["x-business-use-case-usage"])[config.TOKENS[self.tround][0]][0]
             print("Current usage: %s" % str(usage))
             time_access = usage["estimated_time_to_regain_access"]
-            count_pct = usage["object_count_pct"]
             total_time = usage["total_time"]
             total_cputime = usage["total_cputime"]
             curr_time = int(time.time())
-            if count_pct > 95 or total_time > 95 or total_cputime > 95 or time_access != 0:
+            if total_time > 95 or total_cputime > 95 or time_access != 0:
                 self.delayed[self.tround] = curr_time + \
                     max(time_access * 60, 600)
                 print("High Usage, Rotating keys...")
