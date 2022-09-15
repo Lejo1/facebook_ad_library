@@ -92,7 +92,7 @@ The reports were all automatically loaded into the db using the `import_reports.
 [Download](https://b2.nexxxt.cloud/facebook_ads/full.zip) [Reports](https://b2.nexxxt.cloud/facebook_ads/reports_full.zip)
 
 ##### Individual countries crawled from:
-The data of these countries is also available on [kaggle.com](https://www.kaggle.com/lejo11/facebook-ad-library)
+The data of these countries is also available on [kaggle.com](https://www.kaggle.com/datasets/lejo11/facebook-ad-library/versions/2)
 - Germany (DE) [Download](https://b2.nexxxt.cloud/facebook_ads/de.zip) [Report](https://b2.nexxxt.cloud/facebook_ads/report_de.csv)
 - USA (US) [Download](https://b2.nexxxt.cloud/facebook_ads/us.zip) [Report](https://b2.nexxxt.cloud/facebook_ads/report_us.csv)
 
