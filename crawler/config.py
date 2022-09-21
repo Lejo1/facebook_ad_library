@@ -1,9 +1,12 @@
-# secrets.py contains TOKENS and the mongodb url in the form:
-# TOKENS = [["APPID", "TOKEN"], ["APPID", "TOKEN"]]
+# enviroment-Variables:
 # DBURL = "mongodb://localhost"
-from secrets import TOKENS, DBURL
+# TOKEN = "TOKEN1,TOKEN2,TOKEN3"
+import os
 # You can just create multiple apps to get multiple access tokens.
 # Make sure to use long-life keys
+TOKENS = os.getenv("TOKEN").split(",")
+DBURL = os.getenv("DBURL")
+
 
 KEYS_PER_THREAD = 7
 

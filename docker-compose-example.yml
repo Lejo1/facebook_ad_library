@@ -34,6 +34,8 @@ services:
     environment:
       PYTHONUNBUFFERED: 1
     stop_signal: SIGINT
+    env_file:
+      - secrets.env
 
   web:
     build: ./web

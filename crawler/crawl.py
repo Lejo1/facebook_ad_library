@@ -41,8 +41,8 @@ class Crawler(Thread):
     # This function just switches to the next key if the usage is above 95 or if the key is already limited
     def cooldown(self, headers):
         if "x-business-use-case-usage" in headers:
-            usage = json.loads(
-                headers["x-business-use-case-usage"])[config.TOKENS[self.tround][0]][0]
+            raw_usage = json.loads(headers["x-business-use-case-usage"])
+            usage = raw_usage[list(raw_usage.keys())[0]][0]
             print("Current usage: %s" % str(usage))
             time_access = usage["estimated_time_to_regain_access"]
             total_time = usage["total_time"]
@@ -70,7 +70,7 @@ class Crawler(Thread):
         while True:
             print("Running link... After: %s" % after)
             firsturl = config.URL + "?access_token=%s&search_page_ids=%s&ad_reached_countries=%s&ad_active_status=ALL&fields=%s&limit=%i" % (
-                config.TOKENS[self.tround][1], page_id, lang, config.FIELDS, limit)
+                config.TOKENS[self.tround], page_id, lang, config.FIELDS, limit)
             if after != "":
                 firsturl += "&after=%s" % after
 
