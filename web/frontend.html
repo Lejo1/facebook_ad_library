@@ -36,10 +36,16 @@
       <adform></adform><br>
     </div><br>
     <div class="container-fluid bg-light rounded-3">
-      <h2>Show Lost Ads</h2>
+      <h2>Lost Ads</h2>
       <p>These Ads weren't found on the Facebook Ad Library while trying to render them. This doesn't has to mean they are still lost!</p>
       <button v-on:click="$refs.lostads.submit()" type="submit" name="button" class="btn btn-success">Load</button><br><br>
       <adlist ref="lostads" endpoint="/lostads" input=""></adlist><br>
+    </div><br>
+    <div class="container-fluid bg-light rounded-3">
+      <h2>Latest Added/Updated Ads</h2>
+      <p>This query uses the reverse natural order by MongoDB which. The "Load More" Button might return ads already loaded when new ads are added.</p>
+      <button v-on:click="$refs.latest.submit()" type="submit" name="button" class="btn btn-success">Load</button><br><br>
+      <adlist ref="latest" endpoint="/latest" input=""></adlist><br>
     </div>
   </main><br>
 </body>

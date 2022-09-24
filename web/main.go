@@ -142,6 +142,31 @@ func getLostAds(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
+// Get latest ads
+// GET /latest
+func getLatest(c *gin.Context)  {
+	param := c.DefaultQuery("offset", "0")
+	offset, err := strconv.ParseInt(param, 10, 64)
+	if err != nil {
+		c.String(http.StatusBadRequest, "Invalid Offset")
+		return
+	}
+	filter := bson.D{}
+	sort := bson.D{{"$natural", -1}}
+
+	cursor, err := ads.Find(context.TODO(), filter, options.Find().SetSort(sort).SetSkip(offset).SetLimit(limit))
+	if err != nil {
+		c.String(http.StatusInternalServerError, "Error finding ads")
+		return
+	}
+	var result []bson.M
+	if err = cursor.All(context.TODO(), &result); err != nil {
+		c.String(http.StatusInternalServerError, "Error unpacking ads")
+		return
+	}
+	c.JSON(http.StatusOK, result)
+}
+
 // Queue an Ad to preview rendering
 // POST /render_preview/id
 func queuePreview(c *gin.Context) {
@@ -173,6 +198,7 @@ func main() {
 	router.GET("/adsbypage/:id", getAdsByPage)
 	router.GET("/search/:search", searchByPage)
 	router.GET("/lostads", getLostAds)
+	router.GET("/latest", getLatest)
 	router.POST("/render_preview/:id", queuePreview)
 
 	router.Run()
