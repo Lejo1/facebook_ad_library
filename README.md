@@ -65,7 +65,9 @@ After rendering you can view them here: `https://facebook-ad-previews.nexxxt.clo
 Downloading the database into a JSON file and compressing it took me increasingly long. That's why I switched to compressed [BSON](https://en.wikipedia.org/wiki/BSON) files (bson.gz). These are native to mongodb and can be created way faster and more reliable.  
 These are created using the [mongodump](https://www.mongodb.com/docs/database-tools/mongodump/) tool and can be loaded into your own mongodb using [mongorestore](https://www.mongodb.com/docs/database-tools/mongorestore/). You can also convert them into normal json files using their [bsondump](https://www.mongodb.com/docs/database-tools/bsondump/) tool.  
 In addition to this you can use the metadata file to restore the indices used in my database.  
+Some of these datasets are also available on kaggle.  
 [Download](https://b2.nexxxt.cloud/facebook_ads/full4/ads.bson.gz) [Metadata](https://b2.nexxxt.cloud/facebook_ads/full4/ads.metadata.json.gz) (07.09.2022)  
+[Download](https://b2.nexxxt.cloud/facebook_ads/full4.1/ads.bson.gz) [Metadata](https://b2.nexxxt.cloud/facebook_ads/full4.1/ads.metadata.json.gz) (22.10.2022) [kaggle](https://www.kaggle.com/datasets/lejo11/facebook-ad-library/versions/6)  
 
 
 #### V3
