@@ -166,11 +166,11 @@ if __name__ == "__main__":
     threads = []
     try:
         while True:
-            for i in range(48):
+            for i in range(config.GLOBAL_RECRAWL):
                 print("Spawning Crawling Thread, Hour: %i" % i)
                 c_limit = config.HOURLY_LIMIT
                 if i == 0:
-                    print("Crawling Completly! Next Complete-Crawl in 2 days")
+                    print("Crawling Completly! Next Complete-Crawl in %s hours." % config.GLOBAL_RECRAWL)
                     c_limit = 0
 
                 t = Crawler(after, 0, len(config.TOKENS), c_limit)
