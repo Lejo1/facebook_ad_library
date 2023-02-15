@@ -96,7 +96,8 @@ def load_preview(id):
 
     # Something must have went wrong!
     print("Something went wrong! Page source: %s" % browser.page_source)
-    if browser.page_source.lower() == "<html><head></head><body><h1>blocked from searching or viewing the ad library</h1><p>you have been temporarily blocked from searching or viewing the ad library due to too many requests. please try again later.</p></body></html>":
+    temporilyBlocked = browser.find_elements(By.CLASS_NAME, "uiInterstitialContent")
+    if (len(temporilyBlocked) > 0 and temporilyBlocked[0].get_attribute("innerHTML") == "It looks like you were misusing this feature by going too fast. You’ve been temporarily blocked from using it.") or browser.page_source.lower() == "<html><head></head><body><h1>blocked from searching or viewing the ad library</h1><p>you have been temporarily blocked from searching or viewing the ad library due to too many requests. please try again later.</p></body></html>":
         # We have got rate limited!
         print("We've got temporarily blocked! Sleeping 1h")
         sleep(3600)
