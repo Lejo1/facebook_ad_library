@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -17,6 +18,9 @@ import (
 
 // Ads returned limit
 const limit = 100
+
+// Timeout in Seconds
+const timeout = 10
 
 func connect_db() *mongo.Client {
 	// Create a new client and connect to the server
@@ -41,8 +45,10 @@ var ads *mongo.Collection = db.Collection("ads")
 
 // Get Total Ad count
 // GET /total
-func getTotalAds(c *gin.Context)  {
-	count, err := ads.EstimatedDocumentCount(context.TODO())
+func getTotalAds(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout*time.Second)
+	defer cancel()
+	count, err := ads.EstimatedDocumentCount(ctx)
 	if err != nil {
 		c.String(http.StatusInternalServerError, "Failed to retrieve document count")
 		return
@@ -53,11 +59,13 @@ func getTotalAds(c *gin.Context)  {
 // Single Ad Request
 // GET /ad/id
 func getAd(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout*time.Second)
+	defer cancel()
 	id := c.Param("id")
 	filter := bson.D{{"_id", id}}
 
 	var result bson.M
-	if err := ads.FindOne(context.TODO(), filter).Decode(&result); err != nil {
+	if err := ads.FindOne(ctx, filter).Decode(&result); err != nil {
 		c.String(http.StatusNotFound, "Ad not found")
 		return
 	}
@@ -67,6 +75,8 @@ func getAd(c *gin.Context) {
 // Ads by page
 // GET /adbypage/page_id?offset=0
 func getAdsByPage(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout*time.Second)
+	defer cancel()
 	id := c.Param("id")
 	param := c.DefaultQuery("offset", "0")
 	offset, err := strconv.ParseInt(param, 10, 64)
@@ -76,13 +86,13 @@ func getAdsByPage(c *gin.Context) {
 	}
 	filter := bson.D{{"page_id", id}}
 
-	cursor, err := ads.Find(context.TODO(), filter, options.Find().SetSkip(offset).SetLimit(limit))
+	cursor, err := ads.Find(ctx, filter, options.Find().SetSkip(offset).SetLimit(limit))
 	if err != nil {
 		c.String(http.StatusInternalServerError, "Error finding ads")
 		return
 	}
 	var result []bson.M
-	if err = cursor.All(context.TODO(), &result); err != nil {
+	if err = cursor.All(ctx, &result); err != nil {
 		c.String(http.StatusInternalServerError, "Error unpacking ads")
 		return
 	}
@@ -92,6 +102,8 @@ func getAdsByPage(c *gin.Context) {
 // Search ads by page name or disclaimer
 // GET /search/query?offset=0
 func searchByPage(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout*time.Second)
+	defer cancel()
 	id := c.Param("search")
 	param := c.DefaultQuery("offset", "0")
 	offset, err := strconv.ParseInt(param, 10, 64)
@@ -105,13 +117,13 @@ func searchByPage(c *gin.Context) {
 		},
 	}
 
-	cursor, err := ads.Find(context.TODO(), filter, options.Find().SetSkip(offset).SetLimit(limit))
+	cursor, err := ads.Find(ctx, filter, options.Find().SetSkip(offset).SetLimit(limit))
 	if err != nil {
 		c.String(http.StatusInternalServerError, "Error searching for ads")
 		return
 	}
 	var result []bson.M
-	if err = cursor.All(context.TODO(), &result); err != nil {
+	if err = cursor.All(ctx, &result); err != nil {
 		c.String(http.StatusInternalServerError, "Error unpacking ads")
 		return
 	}
@@ -121,6 +133,8 @@ func searchByPage(c *gin.Context) {
 // Get lost ads
 // GET /lostads?offset=0
 func getLostAds(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout*time.Second)
+	defer cancel()
 	param := c.DefaultQuery("offset", "0")
 	offset, err := strconv.ParseInt(param, 10, 64)
 	if err != nil {
@@ -129,13 +143,13 @@ func getLostAds(c *gin.Context) {
 	}
 	filter := bson.D{{"lost", true}}
 
-	cursor, err := ads.Find(context.TODO(), filter, options.Find().SetSkip(offset).SetLimit(limit))
+	cursor, err := ads.Find(ctx, filter, options.Find().SetSkip(offset).SetLimit(limit))
 	if err != nil {
 		c.String(http.StatusInternalServerError, "Error finding ads")
 		return
 	}
 	var result []bson.M
-	if err = cursor.All(context.TODO(), &result); err != nil {
+	if err = cursor.All(ctx, &result); err != nil {
 		c.String(http.StatusInternalServerError, "Error unpacking ads")
 		return
 	}
@@ -144,7 +158,9 @@ func getLostAds(c *gin.Context) {
 
 // Get latest ads
 // GET /latest
-func getLatest(c *gin.Context)  {
+func getLatest(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout*time.Second)
+	defer cancel()
 	param := c.DefaultQuery("offset", "0")
 	offset, err := strconv.ParseInt(param, 10, 64)
 	if err != nil {
@@ -154,13 +170,13 @@ func getLatest(c *gin.Context)  {
 	filter := bson.D{}
 	sort := bson.D{{"$natural", -1}}
 
-	cursor, err := ads.Find(context.TODO(), filter, options.Find().SetSort(sort).SetSkip(offset).SetLimit(limit))
+	cursor, err := ads.Find(ctx, filter, options.Find().SetSort(sort).SetSkip(offset).SetLimit(limit))
 	if err != nil {
 		c.String(http.StatusInternalServerError, "Error finding ads")
 		return
 	}
 	var result []bson.M
-	if err = cursor.All(context.TODO(), &result); err != nil {
+	if err = cursor.All(ctx, &result); err != nil {
 		c.String(http.StatusInternalServerError, "Error unpacking ads")
 		return
 	}
@@ -170,11 +186,13 @@ func getLatest(c *gin.Context)  {
 // Queue an Ad to preview rendering
 // POST /render_preview/id
 func queuePreview(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout*time.Second)
+	defer cancel()
 	id := c.Param("id")
 	filter := bson.D{{"_id", id}, {"rendered", bson.M{"$exists": false}}}
 	update := bson.D{{"$set", bson.D{{"rendered", false}, {"rendering_started", 0}}}}
 
-	result, err := ads.UpdateOne(context.TODO(), filter, update)
+	result, err := ads.UpdateOne(ctx, filter, update)
 	if err != nil {
 		c.String(http.StatusInternalServerError, "Error updating the ad.")
 		return
