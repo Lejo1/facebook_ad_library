@@ -20,7 +20,7 @@ LIMIT = 100
 
 # Amount of Crawls a hourly quick crawler is stopped
 # These are used to crawl the newly created Ads every hour
-HOURLY_LIMIT = 50
+HOURLY_LIMIT = 500
 
 # Hours after which the whole database should be crawled again
 GLOBAL_RECRAWL = 48
