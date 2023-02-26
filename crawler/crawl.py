@@ -131,7 +131,9 @@ class Crawler(Thread):
 
                 # Create bulk of upsert updates to allow key-duplicates
                 upserts = [UpdateOne({'_id': x['_id']}, {
-                                     '$set': x}, upsert=True) for x in data]
+                    '$set': x,
+                    '$setOnInsert': {'rendering_started': -1} # Add rendering_started if the ad is new
+                }, upsert=True) for x in data]
                 result = ads.bulk_write(upserts)
 
                 print("Inserted %i items" % amount)

@@ -36,7 +36,7 @@ browser = webdriver.Remote(
 # This allows queuing by setting rendering_started=0 and handles automated rendering failture
 # The rendered image will then be uploaded to a storage bucket
 # rendered defines if the ad has already been rendered
-# if RENDER_ALL is True the worker will also work on new ads without the rendered field
+# if RENDER_ALL is True the worker will also work on new ads with rendering_started = -1
 db = MongoClient(os.getenv("DBURL"))["facebook_ads_full"]
 ads = db["ads"]
 
@@ -121,16 +121,16 @@ if __name__ == "__main__":
         print("All initalized, watching queue... RENDER_ALL=%s" % RENDER_ALL)
         while True:
             now = int(time())
-            # Pull one item from the queue (rendering_started=0)
+            # Pull one item from the queue (rendering_started!=-1)
             x = ads.find_one_and_update(
-                {"rendering_started": {"$lt": now - 300}}, {"$set": {"rendered": False, "rendering_started": now}})
+                {"rendering_started": {"$ne": -1, "$lt": now - 300}}, {"$set": {"rendered": False, "rendering_started": now}})
 
             if x == None:
                 # Is this worker supposed to just render everything?
                 if RENDER_ALL == "true":
                     # Getting ad with nonexisting renderer field (not queued)
                     x = ads.find_one_and_update(
-                        {"rendered": {"$exists": False}}, {"$set": {"rendered": False, "rendering_started": now}})
+                        {"rendering_started": -1}, {"$set": {"rendered": False, "rendering_started": now}})
 
             if x != None:
                 load_preview(x["_id"])
