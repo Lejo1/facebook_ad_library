@@ -85,8 +85,9 @@ func getAdsByPage(c *gin.Context) {
 		return
 	}
 	filter := bson.D{{"page_id", id}}
+	sort := bson.D{{"ad_creation_time", -1}}
 
-	cursor, err := ads.Find(ctx, filter, options.Find().SetSkip(offset).SetLimit(limit))
+	cursor, err := ads.Find(ctx, filter, options.Find().SetSort(sort).SetSkip(offset).SetLimit(limit))
 	if err != nil {
 		c.String(http.StatusInternalServerError, "Error finding ads")
 		return
@@ -99,7 +100,7 @@ func getAdsByPage(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// Search ads by page name or disclaimer
+// Search ads by page name
 // GET /search/query?offset=0
 func searchByPage(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout*time.Second)
@@ -142,8 +143,9 @@ func getLostAds(c *gin.Context) {
 		return
 	}
 	filter := bson.D{{"lost", true}}
+	sort := bson.D{{"ad_creation_time", -1}}
 
-	cursor, err := ads.Find(ctx, filter, options.Find().SetSkip(offset).SetLimit(limit))
+	cursor, err := ads.Find(ctx, filter, options.Find().SetSort(sort).SetSkip(offset).SetLimit(limit))
 	if err != nil {
 		c.String(http.StatusInternalServerError, "Error finding ads")
 		return

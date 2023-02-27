@@ -19,7 +19,7 @@
       <h1>Facebook Ad Archive</h1>
       This Project aims to provide a searchable and complete copy of the political ads on the <a href="https://www.facebook.com/ads/library/" target="_blank">Facebook Ad Library</a>
       <p>You can find further information on the source of the data and whole database downloads on <a href="https://github.com/Lejo1/facebook_ad_library">Github</a></p>
-      Here you can display ads by their ad/page id or search for them by their page name and disclaimer.
+      Here you can display ads by their ad/page id or search for them by their page name.
       <p>There are total <b>{{ total_ads }}</b> ads in the archive.</p>
     </div><br>
     <div class="container bg-light rounded-3">
@@ -32,18 +32,18 @@
       <ad v-if="ad.length != 0" v-bind:data="ad"></ad><br>
     </div><br>
     <div class="container-fluid bg-light rounded-3">
-      <h2>Find Ads by Page ID or Page Name and Disclaimer</h2>
+      <h2>Find Ads by Page ID or Page Name</h2>
       <adform></adform><br>
     </div><br>
     <div class="container-fluid bg-light rounded-3">
       <h2>Lost Ads</h2>
-      <p>These Ads weren't found on the Facebook Ad Library while trying to render them. This doesn't has to mean they are still lost!</p>
+      <p>These Ads sorted by creation time weren't found on the Facebook Ad Library while trying to render them. This doesn't has to mean they are still lost!</p>
       <button v-on:click="$refs.lostads.submit()" type="submit" name="button" class="btn btn-success">Load</button><br><br>
       <adlist ref="lostads" endpoint="/lostads" input=""></adlist><br>
     </div><br>
     <div class="container-fluid bg-light rounded-3">
       <h2>Latest Added/Updated Ads</h2>
-      <p>This query uses the reverse natural order by MongoDB which. The "Load More" Button might return ads already loaded when new ads are added.</p>
+      <p>This query uses the reverse natural order by MongoDB. Lastly added or updated ads will therefore show first. The "Load More" Button might return ads already loaded when new ads are added.</p>
       <button v-on:click="$refs.latest.submit()" type="submit" name="button" class="btn btn-success">Load</button><br><br>
       <adlist ref="latest" endpoint="/latest" input=""></adlist><br>
     </div>
