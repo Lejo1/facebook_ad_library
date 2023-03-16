@@ -48,10 +48,11 @@ class Crawler(Thread):
             total_time = usage["total_time"]
             total_cputime = usage["total_cputime"]
             curr_time = int(time.time())
-            if total_time > 95 or total_cputime > 95 or time_access != 0:
-                self.delayed[self.tround] = curr_time + \
-                    max(time_access * 60, 600)
-                print("High Usage, Rotating keys...")
+            max_time = max(total_time, total_cputime)
+            if max_time > 95 or time_access != 0:
+                delay = max(time_access * 60, (max_time-95) * 600)
+                self.delayed[self.tround] = curr_time + delay
+                print("High Usage, Key delayed for %s seconds, Rotating keys..." % delay)
                 self.tround = self.min
 
                 while self.delayed[self.tround] > curr_time:
