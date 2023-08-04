@@ -16,11 +16,18 @@ import (
 	"net/http"
 )
 
-// Ads returned limit
-const limit = 100
+// Max Ads returned limit
+const max_limit = 10000
 
 // Timeout in Seconds
 const timeout = 10
+
+func min(a int64, b int64) int64 {
+	if (a < b) {
+		return a
+	}
+	return b
+}
 
 func connect_db() *mongo.Client {
 	// Create a new client and connect to the server
@@ -42,7 +49,6 @@ func connect_db() *mongo.Client {
 var client *mongo.Client = connect_db()
 var db *mongo.Database = client.Database("facebook_ads_full")
 var ads *mongo.Collection = db.Collection("ads")
-
 
 // Get Total Ad count
 // GET /total
@@ -73,6 +79,7 @@ func getAd(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
+// Function to return Lists of Ads
 func returnAdList(c *gin.Context, filter bson.D, sort bson.D) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout*time.Second)
 	defer cancel()
@@ -84,7 +91,14 @@ func returnAdList(c *gin.Context, filter bson.D, sort bson.D) {
 		return
 	}
 
-	cursor, err := ads.Find(ctx, filter, options.Find().SetSort(sort).SetSkip(offset).SetLimit(limit))
+	param2 := c.DefaultQuery("limit", "100")
+	limit, err := strconv.ParseInt(param2, 10, 64)
+	if err != nil {
+		c.String(http.StatusBadRequest, "Invalid Limit")
+		return
+	}
+
+	cursor, err := ads.Find(ctx, filter, options.Find().SetSort(sort).SetSkip(offset).SetLimit(min(limit, max_limit)))
 	if err != nil {
 		c.String(http.StatusInternalServerError, "Error finding ads")
 		return
