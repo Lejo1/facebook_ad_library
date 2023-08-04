@@ -42,6 +42,12 @@
       <adlist ref="lostads" endpoint="/lostads" input=""></adlist><br>
     </div><br>
     <div class="container-fluid bg-light rounded-3">
+      <h2>Active Ads</h2>
+      <p>These Ads sorted by creation time are still active. This means they've got a start but no stop time.</p>
+      <button v-on:click="$refs.actives.submit()" type="submit" name="button" class="btn btn-success">Load</button><br><br>
+      <adlist ref="actives" endpoint="/actives" input=""></adlist><br>
+    </div><br>
+    <div class="container-fluid bg-light rounded-3">
       <h2>Latest Added/Updated Ads</h2>
       <p>This query uses the reverse natural order by MongoDB. Lastly added or updated ads will therefore show first. The "Load More" Button might return ads already loaded when new ads are added.</p>
       <button v-on:click="$refs.latest.submit()" type="submit" name="button" class="btn btn-success">Load</button><br><br>

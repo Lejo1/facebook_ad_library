@@ -43,6 +43,7 @@ var client *mongo.Client = connect_db()
 var db *mongo.Database = client.Database("facebook_ads_full")
 var ads *mongo.Collection = db.Collection("ads")
 
+
 // Get Total Ad count
 // GET /total
 func getTotalAds(c *gin.Context) {
@@ -72,20 +73,16 @@ func getAd(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// Ads by page
-// GET /adbypage/page_id?offset=0
-func getAdsByPage(c *gin.Context) {
+func returnAdList(c *gin.Context, filter bson.D, sort bson.D) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout*time.Second)
 	defer cancel()
-	id := c.Param("id")
+
 	param := c.DefaultQuery("offset", "0")
 	offset, err := strconv.ParseInt(param, 10, 64)
 	if err != nil {
 		c.String(http.StatusBadRequest, "Invalid Offset")
 		return
 	}
-	filter := bson.D{{"page_id", id}}
-	sort := bson.D{{"ad_creation_time", -1}}
 
 	cursor, err := ads.Find(ctx, filter, options.Find().SetSort(sort).SetSkip(offset).SetLimit(limit))
 	if err != nil {
@@ -98,91 +95,48 @@ func getAdsByPage(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, result)
+}
+
+// Ads by page
+// GET /adbypage/page_id?offset=0
+func getAdsByPage(c *gin.Context) {
+	id := c.Param("id")
+	filter := bson.D{{"page_id", id}}
+	sort := bson.D{{"ad_creation_time", -1}}
+	returnAdList(c, filter, sort)
 }
 
 // Search ads by page name
 // GET /search/query?offset=0
 func searchByPage(c *gin.Context) {
-	ctx, cancel := context.WithTimeout(context.Background(), timeout*time.Second)
-	defer cancel()
-	id := c.Param("search")
-	param := c.DefaultQuery("offset", "0")
-	offset, err := strconv.ParseInt(param, 10, 64)
-	if err != nil {
-		c.String(http.StatusBadRequest, "Invalid Offset")
-		return
-	}
-	filter := bson.M{
-		"$text": bson.M{
-			"$search": id,
-		},
-	}
-
-	cursor, err := ads.Find(ctx, filter, options.Find().SetSkip(offset).SetLimit(limit))
-	if err != nil {
-		c.String(http.StatusInternalServerError, "Error searching for ads")
-		return
-	}
-	var result []bson.M
-	if err = cursor.All(ctx, &result); err != nil {
-		c.String(http.StatusInternalServerError, "Error unpacking ads")
-		return
-	}
-	c.JSON(http.StatusOK, result)
+	search := c.Param("search")
+	filter := bson.D{{"$text", bson.D{{"$search", search}}}}
+	sort := bson.D{}
+	returnAdList(c, filter, sort)
 }
 
 // Get lost ads
 // GET /lostads?offset=0
 func getLostAds(c *gin.Context) {
-	ctx, cancel := context.WithTimeout(context.Background(), timeout*time.Second)
-	defer cancel()
-	param := c.DefaultQuery("offset", "0")
-	offset, err := strconv.ParseInt(param, 10, 64)
-	if err != nil {
-		c.String(http.StatusBadRequest, "Invalid Offset")
-		return
-	}
 	filter := bson.D{{"lost", true}}
 	sort := bson.D{{"ad_creation_time", -1}}
+	returnAdList(c, filter, sort)
+}
 
-	cursor, err := ads.Find(ctx, filter, options.Find().SetSort(sort).SetSkip(offset).SetLimit(limit))
-	if err != nil {
-		c.String(http.StatusInternalServerError, "Error finding ads")
-		return
-	}
-	var result []bson.M
-	if err = cursor.All(ctx, &result); err != nil {
-		c.String(http.StatusInternalServerError, "Error unpacking ads")
-		return
-	}
-	c.JSON(http.StatusOK, result)
+// Get active ads
+// GET /actives
+func getActives(c *gin.Context) {
+	filter := bson.D{{"ad_delivery_start_time", bson.D{{"$exists", true}}}, {"ad_delivery_stop_time", nil}}
+	sort := bson.D{{"ad_creation_time", -1}}
+	returnAdList(c, filter, sort)
 }
 
 // Get latest ads
 // GET /latest
 func getLatest(c *gin.Context) {
-	ctx, cancel := context.WithTimeout(context.Background(), timeout*time.Second)
-	defer cancel()
-	param := c.DefaultQuery("offset", "0")
-	offset, err := strconv.ParseInt(param, 10, 64)
-	if err != nil {
-		c.String(http.StatusBadRequest, "Invalid Offset")
-		return
-	}
 	filter := bson.D{}
 	sort := bson.D{{"$natural", -1}}
-
-	cursor, err := ads.Find(ctx, filter, options.Find().SetSort(sort).SetSkip(offset).SetLimit(limit))
-	if err != nil {
-		c.String(http.StatusInternalServerError, "Error finding ads")
-		return
-	}
-	var result []bson.M
-	if err = cursor.All(ctx, &result); err != nil {
-		c.String(http.StatusInternalServerError, "Error unpacking ads")
-		return
-	}
-	c.JSON(http.StatusOK, result)
+	returnAdList(c, filter, sort)
 }
 
 // Queue an Ad to preview rendering
@@ -218,6 +172,7 @@ func main() {
 	router.GET("/adsbypage/:id", getAdsByPage)
 	router.GET("/search/:search", searchByPage)
 	router.GET("/lostads", getLostAds)
+	router.GET("/actives", getActives)
 	router.GET("/latest", getLatest)
 	router.POST("/render_preview/:id", queuePreview)
 
