@@ -70,6 +70,7 @@ Some of these datasets are also available on kaggle.
 [Download](https://b2.nexxxt.cloud/facebook_ads/full4.1/ads.bson.gz) [Metadata](https://b2.nexxxt.cloud/facebook_ads/full4.1/ads.metadata.json.gz) (22.10.2022) [kaggle](https://www.kaggle.com/datasets/lejo11/facebook-ad-library/versions/6)  
 [Download](https://b2.nexxxt.cloud/facebook_ads/full4.2/ads.bson.gz) [Metadata](https://b2.nexxxt.cloud/facebook_ads/full4.2/ads.metadata.json.gz) (30.12.2022) [kaggle](https://www.kaggle.com/datasets/lejo11/facebook-ad-library/versions/7)  
 [Download](https://b2.nexxxt.cloud/facebook_ads/full4.3/ads.bson.gz) [Metadata](https://b2.nexxxt.cloud/facebook_ads/full4.3/ads.metadata.json.gz) (15.03.2023) [kaggle](https://www.kaggle.com/datasets/lejo11/facebook-ad-library/versions/8)  
+[Download](https://b2.nexxxt.cloud/facebook_ads/full4.4/ads.bson.gz) [Metadata](https://b2.nexxxt.cloud/facebook_ads/full4.4/ads.metadata.json.gz) (06.08.2023) [kaggle](https://www.kaggle.com/datasets/lejo11/facebook-ad-library/versions/9)  
 
 
 #### V3
