@@ -1,6 +1,7 @@
 # Facebook Ad Library Copy
 
 This Project aims to provide a searchable and complete copy of the political ads on the [Facebook Ad Library](https://www.facebook.com/ads/library/)  
+Since 17.08.2023 it also contains ads run in the EU not older than one year from that date. See the extra fields for the below.  
 Facebook already provides all this data via their web interface. The Problem with this is that it's hardly searchable and therefore no real use for Analysis of political advertisement. In Addition to this the [API](https://www.facebook.com/ads/library/api/) is hard to access and limited in many ways.  
 This data is already meant to be public so this dataset is just helping to provide the transparency ~~Facebook~~ Meta wants to provide.
 
@@ -22,6 +23,7 @@ Also I later realized that when crawling very huge sites are empty although they
 ~~In the end this resulted in the ads in this dataset being less than it should be according to the reports.~~ Should be pretty accurate now.
 
 ### Fields of the ads.json file
+#### Default fields
 - id("_id" in the table)
 - ad_creation_time
 - ad_creative_bodies
@@ -30,18 +32,31 @@ Also I later realized that when crawling very huge sites are empty although they
 - ad_creative_link_titles
 - ad_delivery_start_time
 - ad_delivery_stop_time
+- languages
+- page_id
+- page_name
+- publisher_platforms
+
+#### Fields only for political ads
 - bylines
 - currency
 - delivery_by_region
 - demographic_distribution
 - estimated_audience_size
 - impressions
-- languages
-- page_id
-- page_name
-- publisher_platforms
 - spend
-- rendered (defines if the rendered version available)
+
+#### Fields only for ads run in the EU
+- target_locations
+- target_gender
+- target_ages
+- eu_total_reach
+- beneficiary_payers
+- age_country_gender_reach_breakdown
+
+#### Extra (non fb) fields
+- rendered (defines if the rendered version is available)
+- rendering_started (used for queing the ads for rendering)
 - lost (True, if the ad wasn't found while rendering)
 
 The field `ad_snapshot_url` is not crawled as it's just a combination of the id and your access token:  
