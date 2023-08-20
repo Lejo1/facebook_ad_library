@@ -13,6 +13,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-contrib/cors"
 	"net/http"
 )
 
@@ -180,6 +181,8 @@ func main() {
 	}()
 
 	router := gin.Default()
+	router.Use(cors.Default())
+
 	router.StaticFile("/", "frontend.html")
 	router.GET("/total", getTotalAds)
 	router.GET("/ad/:id", getAd)
@@ -189,6 +192,7 @@ func main() {
 	router.GET("/actives", getActives)
 	router.GET("/latest", getLatest)
 	router.POST("/render_preview/:id", queuePreview)
+	router.POST("/addToken", addToken)
 
 	router.Run()
 }
