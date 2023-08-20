@@ -11,14 +11,11 @@ import config
 
 lang = ",".join(config.COUNTRIES.keys())
 
-# Database for the  ads
+# Database for the ads
 db = MongoClient(config.DBURL)["facebook_ads_full"]
 
 # Ads will be saved to this collection:
 ads = db["ads"]
-
-# Global telling the threads if they should continue their work
-_RUN = True
 
 
 class Crawler(Thread):
@@ -35,6 +32,7 @@ class Crawler(Thread):
         self.c_limit = c_limit
         self.delayed = [0 for a in range(max)]
         self.tround = min
+        self.stop = False
 
     # Checks the x-business-use-case-usage for the usage values.
     # If one of them reaches 100 we are getting rate limited.
@@ -70,8 +68,7 @@ class Crawler(Thread):
         limit = config.LIMIT
         retried = 0
         count = 0
-        global _RUN
-        while _RUN and (self.c_limit == 0 or self.c_limit > count):
+        while not self.stop and (self.c_limit == 0 or self.c_limit > count):
             count += 1
             try:
                 print("Running link... After: %s" % self.after)
@@ -108,7 +105,7 @@ class Crawler(Thread):
                         elif out["error"]["code"] == 190:
                             # stop the script to prevent error-spaming
                             print("INVALID Token!")
-                            _RUN = False
+                            self.stop = True
 
                         elif out["error"]["code"] == 613:
                             # the cooldown function has already switched to the next key so we can just retry
@@ -184,8 +181,9 @@ if __name__ == "__main__":
 
     except KeyboardInterrupt:
         print("Got Interrupt, Stopping...")
-        # Setting global var to false-> thread should stop after their crawl
-        _RUN = False
+        # Setting run vars to false -> thrads should stop
+        for t in threads:
+            t.stop = True
 
         for t in threads:
             t.join()
