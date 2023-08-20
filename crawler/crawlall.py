@@ -75,7 +75,7 @@ class Crawler(Thread):
             count += 1
             try:
                 print("Running link... After: %s" % self.after)
-                firsturl = config.URL + "?access_token=%s&search_terms=*&ad_reached_countries=%s&ad_active_status=ALL&fields=%s&limit=%i" % (
+                firsturl = config.URL + "?access_token=%s&search_terms=*&ad_reached_countries=%s&ad_active_status=ALL&unmask_removed_content=true&fields=%s&limit=%i" % (
                     config.TOKENS[self.tround], lang, config.FIELDS, limit)
                 if self.after != "":
                     firsturl += "&after=%s" % self.after
