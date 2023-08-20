@@ -118,9 +118,9 @@ The data of these countries is also available on [kaggle.com](https://www.kaggle
 
 ## Crawling
 
-Previously crawling was done based on the offical [reports](https://www.facebook.com/ads/library/report/) from Facebook. I loaded them into a mongodb and the `crawl.py` script pulled the data from the Api and added it into the ads collection. Now I'm just using the empty query (*) trick to download ads from all pages across all countries, see: `crawlall.py`  
+Previously crawling was done based on the offical [reports](https://www.facebook.com/ads/library/report/) from Facebook. I loaded them into a mongodb and the old `crawl.py` script pulled the data from the Api and added it into the ads collection. Now I'm just using the empty query (*) trick to download ads from all pages across all countries, see: `crawlall.py`  
 To do so you need a (or better multiple) access token. The script will automatically handle rate limiting but you might not be able to pull on multiple threads if you don't have enough tokens.  
-For more information just have a look at the `crawl.py`/`crawlall.py` file.
+For more information just have a look at the `crawlall.py` file.
 
 ## Contact
 

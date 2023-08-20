@@ -7,9 +7,6 @@ import os
 TOKENS = os.getenv("TOKEN").split(",")
 DBURL = os.getenv("DBURL")
 
-
-KEYS_PER_THREAD = 7
-
 URL = "https://graph.facebook.com/v15.0/ads_archive"
 # All except for ad_snapshot_url
 FIELDS = "id,ad_creation_time,ad_creative_bodies,ad_creative_link_captions,ad_creative_link_descriptions,ad_creative_link_titles,ad_delivery_start_time,ad_delivery_stop_time,bylines,currency,delivery_by_region,demographic_distribution,estimated_audience_size,impressions,languages,page_id,page_name,publisher_platforms,spend,target_locations,target_gender,target_ages,eu_total_reach,beneficiary_payers,age_country_gender_reach_breakdown"
