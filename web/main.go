@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"time"
+	"encoding/json"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -50,6 +51,7 @@ func connect_db() *mongo.Client {
 var client *mongo.Client = connect_db()
 var db *mongo.Database = client.Database("facebook_ads_full")
 var ads *mongo.Collection = db.Collection("ads")
+var tokens *mongo.Collection = db.Collection("tokens")
 
 // Get Total Ad count
 // GET /total
@@ -173,6 +175,88 @@ func queuePreview(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Queued ad for rendering."})
+}
+
+// Json response from the Facebook debug_token endpoint
+type DEBUG_TOKEN_DATA struct {
+    App_id string `json:"app_id"`
+    Expires_at int64 `json:"expires_at"`
+		Is_valid bool `json:"is_valid"`
+}
+
+type DEBUG_TOKEN struct {
+	Data DEBUG_TOKEN_DATA `json:"data"`
+}
+
+
+// Validates the FB TOKEN
+func validateFBToken(token string) (DEBUG_TOKEN_DATA, error) {
+	var response DEBUG_TOKEN
+	resp, err := http.Get("https://graph.facebook.com/debug_token?input_token="+token+"&access_token="+token)
+	if err != nil {
+		return response.Data, fmt.Errorf("Validation request failed.")
+	}
+
+	// Read Results
+	defer resp.Body.Close()
+  err = json.NewDecoder(resp.Body).Decode(&response)
+  if err != nil {
+		return response.Data, fmt.Errorf("Failed to parse json.")
+  }
+	if !response.Data.Is_valid {
+		return response.Data, fmt.Errorf("Facebook access token is invalid.")
+	}
+	return response.Data, nil
+}
+
+// Validate FB Token capability to do ad_archive requests
+func validateTokenCapa(token string) bool {
+	res, err := http.Get("https://graph.facebook.com/ads_archive?access_token="+token+"&search_terms=*&ad_reached_countries=US&ad_active_status=ALL&limit=1")
+	return (err == nil && res.StatusCode == http.StatusOK)
+}
+
+type TOKEN_DATA struct {
+	Token string `json:"token"`
+}
+
+// Add a new token to the token collection
+// GET /addToken?token=ACCESS_TOKEN
+func addToken(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout*time.Second)
+	defer cancel()
+
+	var data TOKEN_DATA
+	if c.ShouldBind(&data) != nil {
+		c.String(http.StatusBadRequest, "Please provide a valid token.")
+		return
+	}
+	token := data.Token
+
+	// Validate FB Token
+	res, err := validateFBToken(token)
+	if err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	}
+	id := res.App_id
+	expiresAt := res.Expires_at
+
+	// Validate that this token is able to do ad_archive reqeusts (completed https://www.facebook.com/ID)
+	if (!validateTokenCapa(token)) {
+		c.String(http.StatusBadRequest, "Your token can't be used to access ads, have you validated your account? See https://www.facebook.com/ads/library/api/ for all the necessary steps.")
+		return
+	}
+
+	filter := bson.D{{"_id", id}}
+	update := bson.D{{"$set", bson.D{{"token", token}, {"expiresAt", time.Unix(expiresAt, 0)}}}, {"$setOnInsert", bson.D{{"freshAt", 0}}}}
+	opts := options.Update().SetUpsert(true)
+
+	_, err = tokens.UpdateOne(ctx, filter, update, opts)
+	if err != nil {
+		c.String(http.StatusInternalServerError, "Error adding token.")
+		return
+	}
+	c.String(http.StatusOK, "Successfully Added token! Thanks!")
 }
 
 func main() {
