@@ -24,7 +24,10 @@ LIMIT = 100
 HOURLY_LIMIT = 500
 
 # Hours after which the whole database should be crawled again
-GLOBAL_RECRAWL = 48
+GLOBAL_RECRAWL = 168 # weekly
+
+# Retries after which an empty cursor is considered the end of the db
+END_RETRIES = 10
 
 # These are from the javascript of this site: https://www.facebook.com/ads/library/report/
 COUNTRIES = {

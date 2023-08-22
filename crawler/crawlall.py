@@ -133,8 +133,8 @@ class Crawler(Thread):
                 if not "paging" in out:
                     print("Got no new paging cursor!")
                     retried += 1
-                    if retried > 3:
-                        # We retried the same after pointer for 3 times.
+                    if retried > config.END_RETRIES:
+                        # We retried the same after pointer for END_RETRIES times.
                         # We can be quiet sure it's really the end
                         break
 
