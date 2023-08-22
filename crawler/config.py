@@ -26,6 +26,9 @@ HOURLY_LIMIT = 500
 # Hours after which the whole database should be crawled again
 GLOBAL_RECRAWL = 168 # weekly
 
+# Hours after which to do a political ads only recrawl
+POLITICS_RECRAWL = 48
+
 # Retries after which an empty cursor is considered the end of the db
 END_RETRIES = 10
 

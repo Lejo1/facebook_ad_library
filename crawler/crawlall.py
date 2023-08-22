@@ -167,6 +167,12 @@ if __name__ == "__main__":
                 t = Crawler(after, "" ,c_limit)
                 t.start()
                 threads.append(t)
+                if (i % config.POLITICS_RECRAWL) == 0:
+                    print("Crawling Political ads, next crawl in %d hours" % config.POLITICS_RECRAWL)
+                    t = Crawler("", "&ad_type=POLITICAL_AND_ISSUE_ADS")
+                    t.start()
+                    threads.append(t)
+
                 print("Waiting 1 hour to spawn the next Thread")
                 sleep(3600)
 
