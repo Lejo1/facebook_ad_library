@@ -1,10 +1,14 @@
 # enviroment-Variables:
 # DBURL = "mongodb://localhost"
-# TOKEN = "TOKEN1,TOKEN2,TOKEN3"
 import os
+# TOKENS:
 # You can just create multiple apps to get multiple access tokens.
 # Make sure to use long-life keys
-TOKENS = os.getenv("TOKEN").split(",")
+# Tokens aren't stored anymore as fixed env variables but accessed from the tokens collection
+# Have a look at the tokens.py file for more information
+#TOKENS = os.getenv("TOKEN").split(",")
+
+# Databse-URL to store the ads to and read the tokens from
 DBURL = os.getenv("DBURL")
 
 URL = "https://graph.facebook.com/v15.0/ads_archive"
@@ -15,7 +19,7 @@ FIELDS = "id,ad_creation_time,ad_creative_bodies,ad_creative_link_captions,ad_cr
 # 5000 would be the maximum allowed.
 LIMIT = 100
 
-# Amount of Crawls a hourly quick crawler is stopped
+# Amount of Crawls after a hourly quick crawler is stopped
 # These are used to crawl the newly created Ads every hour
 HOURLY_LIMIT = 500
 

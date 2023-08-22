@@ -1,13 +1,13 @@
 import json
 import requests
 from pymongo import MongoClient, UpdateOne
-import time
-import datetime
+from time import sleep
 from threading import Thread
 import math
 import sys
 
 import config
+import tokens
 
 lang = ",".join(config.COUNTRIES.keys())
 
@@ -20,48 +20,35 @@ ads = db["ads"]
 
 class Crawler(Thread):
     """One Crawling proccess (to be threaded).
-    Allows specifing a range of tokens to use
+    Tokens are requested directly from the tokens collection
     This one doesn't crawl per page_id but accross the whole library
     using an empty query (*)"""
 
-    def __init__(self, after="", min=0, max=len(config.TOKENS), c_limit=0):
+    def __init__(self, after="", c_limit=0):
         Thread.__init__(self)
         self.after = after
-        self.min = min
-        self.max = max
         self.c_limit = c_limit
-        self.delayed = [0 for a in range(max)]
-        self.tround = min
         self.stop = False
+        self.token = tokens.getNewToken()
 
     # Checks the x-business-use-case-usage for the usage values.
     # If one of them reaches 100 we are getting rate limited.
-    # This function just switches to the next key if the usage is above 95 or if the key is already limited
+    # This function delays the tokens and requests new ones
     def cooldown(self, headers):
         if "x-business-use-case-usage" in headers:
             raw_usage = json.loads(headers["x-business-use-case-usage"])
-            usage = raw_usage[list(raw_usage.keys())[0]][0]
+            id = list(raw_usage.keys())[0]
+            usage = raw_usage[id][0]
             print("Current usage: %s" % str(usage))
             time_access = usage["estimated_time_to_regain_access"]
             total_time = usage["total_time"]
             total_cputime = usage["total_cputime"]
-            curr_time = int(time.time())
             max_time = max(total_time, total_cputime)
             if max_time > 95 or time_access != 0:
                 delay = max(time_access * 60, (max_time-95) * 600)
-                self.delayed[self.tround] = curr_time + delay
+                tokens.delayToken(id, delay)
                 print("High Usage, Key delayed for %s seconds, Rotating keys..." % delay)
-                self.tround = self.min
-
-                while self.delayed[self.tround] > curr_time:
-                    self.tround += 1
-                    if self.tround == self.max:
-                        print("All keys are delayed! Sleeping 10min.")
-                        time.sleep(600)
-                        curr_time = int(time.time())
-                        self.tround = self.min
-
-                print("Switched to key n=%i" % self.tround)
+                self.token = tokens.getNewToken()
 
     # Does the actual downloading of the page
     def run(self):
@@ -73,7 +60,7 @@ class Crawler(Thread):
             try:
                 print("Running link... After: %s" % self.after)
                 firsturl = config.URL + "?access_token=%s&search_terms=*&ad_reached_countries=%s&ad_active_status=ALL&unmask_removed_content=true&fields=%s&limit=%i" % (
-                    config.TOKENS[self.tround], lang, config.FIELDS, limit)
+                    self.token, lang, config.FIELDS, limit)
                 if self.after != "":
                     firsturl += "&after=%s" % self.after
 
@@ -99,7 +86,7 @@ class Crawler(Thread):
                         if out["error"]["code"] == 1 or out["error"]["code"] == 2:
                             # These just occur sometimes and we don't want the whole script to stop.
                             print("Unexpected error! Watiting 1min...")
-                            time.sleep(60)
+                            sleep(60)
                             continue
 
                         elif out["error"]["code"] == 190:
@@ -151,7 +138,7 @@ class Crawler(Thread):
                     retried = 0
             except Exception as e:
                 print("Unexpected Error while crawling, sleeping 60s Error: %s" % str(e))
-                time.sleep(60)
+                sleep(60)
 
         print("Finished, last Pointer: %s" % self.after)
         return True
@@ -173,11 +160,11 @@ if __name__ == "__main__":
                     print("Crawling Completly! Next Complete-Crawl in %s hours." % config.GLOBAL_RECRAWL)
                     c_limit = 0
 
-                t = Crawler(after, 0, len(config.TOKENS), c_limit)
+                t = Crawler(after, c_limit)
                 t.start()
                 threads.append(t)
                 print("Waiting 1 hour to spawn the next Thread")
-                time.sleep(3600)
+                sleep(3600)
 
     except KeyboardInterrupt:
         print("Got Interrupt, Stopping...")
