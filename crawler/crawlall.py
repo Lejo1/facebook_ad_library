@@ -22,11 +22,15 @@ class Crawler(Thread):
     """One Crawling proccess (to be threaded).
     Tokens are requested directly from the tokens collection
     This one doesn't crawl per page_id but accross the whole library
-    using an empty query (*)"""
+    using an empty query (*)
+    after specicies the cursor to start with
+    search allows to narrow the search
+    c-limit specifies how often to crawl before stopping"""
 
-    def __init__(self, after="", c_limit=0):
+    def __init__(self, after="", search="", c_limit=0):
         Thread.__init__(self)
         self.after = after
+        self.search = search
         self.c_limit = c_limit
         self.stop = False
         self.token = tokens.getNewToken()
@@ -59,8 +63,8 @@ class Crawler(Thread):
             count += 1
             try:
                 print("Running link... After: %s" % self.after)
-                firsturl = config.URL + "?access_token=%s&search_terms=*&ad_reached_countries=%s&ad_active_status=ALL&unmask_removed_content=true&fields=%s&limit=%i" % (
-                    self.token, lang, config.FIELDS, limit)
+                firsturl = config.URL + "?access_token=%s&search_terms=*&ad_reached_countries=%s&ad_active_status=ALL&unmask_removed_content=true&fields=%s&limit=%i%s" % (
+                    self.token, lang, config.FIELDS, limit, self.search)
                 if self.after != "":
                     firsturl += "&after=%s" % self.after
 
@@ -160,7 +164,7 @@ if __name__ == "__main__":
                     print("Crawling Completly! Next Complete-Crawl in %s hours." % config.GLOBAL_RECRAWL)
                     c_limit = 0
 
-                t = Crawler(after, c_limit)
+                t = Crawler(after, "" ,c_limit)
                 t.start()
                 threads.append(t)
                 print("Waiting 1 hour to spawn the next Thread")
