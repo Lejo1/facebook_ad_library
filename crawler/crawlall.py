@@ -58,6 +58,7 @@ class Crawler(Thread):
     def run(self):
         limit = config.LIMIT
         retried = 0
+        error_retries = 0
         count = 0
         while not self.stop and (self.c_limit == 0 or self.c_limit > count):
             count += 1
@@ -96,7 +97,7 @@ class Crawler(Thread):
                         elif out["error"]["code"] == 190:
                             # stop the script to prevent error-spaming
                             print("INVALID Token!")
-                            self.stop = True
+                            return False
 
                         elif out["error"]["code"] == 613:
                             # the cooldown function has already switched to the next key so we can just retry
@@ -104,8 +105,9 @@ class Crawler(Thread):
                             continue
 
                     # We can't handle this error
-                    return False
+                    raise Exception("Uncatched Error")
 
+                error_retries = 0
                 out = response.json()
                 data = out["data"]
                 amount = len(data)
@@ -141,8 +143,14 @@ class Crawler(Thread):
                 else:
                     retried = 0
             except Exception as e:
-                print("Unexpected Error while crawling, sleeping 60s Error: %s" % str(e))
-                sleep(60)
+                print("Unexpected Error while crawling try=%d, Error: %s" % (error_retries, str(e)))
+                if error_retries >= config.ERROR_RETRIES:
+                    print("Uncatched Error, STOPPING!")
+                    return False
+
+                error_retries += 1
+                print("Sleeping 10s...")
+                sleep(10)
 
         print("Finished, last Pointer: %s" % self.after)
         return True

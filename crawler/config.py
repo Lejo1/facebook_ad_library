@@ -32,6 +32,9 @@ POLITICS_RECRAWL = 48
 # Retries after which an empty cursor is considered the end of the db
 END_RETRIES = 10
 
+# Retries when receiving an error until which to stop
+ERROR_RETRIES = 5
+
 # These are from the javascript of this site: https://www.facebook.com/ads/library/report/
 COUNTRIES = {
     "US": "United States",
