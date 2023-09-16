@@ -104,6 +104,13 @@ class Crawler(Thread):
                             print("Got Rate limited!")
                             continue
 
+                        elif out["error"]["code"] == 100:
+                            # A super weird error where waiting might help?
+                            # wait 10 min
+                            print("Got the code=100 error, make sure to use tokens with ads_read permission!")
+                            sleep(600)
+                            continue
+
                     # We can't handle this error
                     raise Exception("Uncatched Error")
 
