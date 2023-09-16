@@ -32,6 +32,9 @@ POLITICS_RECRAWL = 48
 # Retries after which an empty cursor is considered the end of the db
 END_RETRIES = 10
 
+# TIme to wait between crawls when no paging cursor is returned
+END_RETRY_SLEEP = 120
+
 # Retries when receiving an error until which to stop
 ERROR_RETRIES = 5
 

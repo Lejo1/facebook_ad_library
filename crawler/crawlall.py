@@ -140,7 +140,8 @@ class Crawler(Thread):
                     limit = config.LIMIT
 
                 if not "paging" in out:
-                    print("Got no new paging cursor!")
+                    print("Got no new paging cursor, sleeping %ds" % config.END_RETRY_SLEEP)
+                    sleep(config.END_RETRY_SLEEP)
                     retried += 1
                     if retried > config.END_RETRIES:
                         # We retried the same after pointer for END_RETRIES times.
