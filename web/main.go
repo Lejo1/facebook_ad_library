@@ -52,6 +52,7 @@ var client *mongo.Client = connect_db()
 var db *mongo.Database = client.Database("facebook_ads_full")
 var ads *mongo.Collection = db.Collection("ads")
 var tokens *mongo.Collection = db.Collection("tokens")
+var render_queue *mongo.Collection = db.Collection("render_queue")
 
 // Get Total Ad count
 // GET /total
@@ -162,19 +163,21 @@ func queuePreview(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout*time.Second)
 	defer cancel()
 	id := c.Param("id")
-	filter := bson.D{{"_id", id}, {"rendered", bson.M{"$exists": false}}}
-	update := bson.D{{"$set", bson.D{{"rendered", false}, {"rendering_started", 0}}}}
+	filter := bson.D{{"_id", id}}
 
-	result, err := ads.UpdateOne(ctx, filter, update)
+	var result bson.M
+	if err := ads.FindOne(ctx, filter).Decode(&result); err != nil {
+		c.String(http.StatusNotFound, "Ad not found")
+		return
+	}
+	insert := bson.D{{"_id", id}, {"rendering_started", 0}}
+	_, err := render_queue.InsertOne(ctx, insert)
 	if err != nil {
-		c.String(http.StatusInternalServerError, "Error updating the ad.")
+		c.String(http.StatusInternalServerError, "Ad already queued for rendering.")
 		return
 	}
-	if result.MatchedCount == 0 {
-		c.String(http.StatusNotFound, "Ad not found or already queued for rendering.")
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "Queued ad for rendering."})
+
+	c.JSON(http.StatusOK, gin.H{"message": "Queued ad for rendering. It should be ready in a few seconds."})
 }
 
 // Json response from the Facebook debug_token endpoint

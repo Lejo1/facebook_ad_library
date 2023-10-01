@@ -55,8 +55,8 @@ Also I later realized that when crawling very huge sites are empty although they
 - age_country_gender_reach_breakdown
 
 #### Extra (non fb) fields
-- rendered (defines if the rendered version is available)
-- rendering_started (used for queing the ads for rendering)
+- rendered (defines if the rendered version is available) (DEPRECATED since V5!)
+- rendering_started (used for queing the ads for rendering) (DEPRECATED since V5!)
 - lost (True, if the ad wasn't found while rendering)
 
 The field `ad_snapshot_url` is not crawled as it's just a combination of the id and your access token:  
@@ -71,7 +71,7 @@ For more information have a look at the `example.json` file or the description o
 
 ### Rendered Previews
 
-The script from the `preview_renderer` folder is used to take a screeshot of the relevant elements from the `ad_snapshot_url` of each ad. The rendered field defines whether the rendered image is available. The `rendering_started` field is used for queuing the ads for rendering.
+The script from the `preview_renderer` folder is used to take a screeshot of the relevant elements from the `ad_snapshot_url` of each ad. The seperate `render_queue` database is used for queuing the ads for rendering. After rendering images are stored for one month but can be rerendered at any time.   
 After rendering you can view them here: `https://facebook-ad-previews.nexxxt.cloud/<id>.jpg`
 
 ### Available Data-Downloads

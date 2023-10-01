@@ -13,7 +13,6 @@ from random import randrange
 # Secrets from enviroment variables
 TOKENS = os.getenv("TOKEN").split(",")
 TOKEN = TOKENS[randrange(0, len(TOKENS))]
-RENDER_ALL = os.getenv("RENDER_ALL")
 
 # Auth to Backblaze
 info = SqliteAccountInfo()
@@ -30,15 +29,15 @@ browser = webdriver.Remote(
     command_executor=os.getenv("BROWSER_URL"), options=options)
 
 # Database for the queue
-# The queue is done by the rendering_started field created using:
-# db.ads.createIndex({"rendering_started": 1}, { partialFilterExpression: {rendering_started: { $exists: true } } })
+# The queue is done by the capped render_queue database
+# contains fields with the _id field and rendering_started with index
+# db.render_queue.createIndex({"rendering_started": 1})
 # if the value is lower then the current unix time-300 then the ad will be rendered.
 # This allows queuing by setting rendering_started=0 and handles automated rendering failture
 # The rendered image will then be uploaded to a storage bucket
-# rendered defines if the ad has already been rendered
-# if RENDER_ALL is True the worker will also work on new ads with rendering_started = -1
 db = MongoClient(os.getenv("DBURL"))["facebook_ads_full"]
 ads = db["ads"]
+queue = db["render_queue"]
 
 # Upload the saved file to the Backblaze bucket
 
@@ -51,8 +50,8 @@ def upload_file(id):
         file_name=filename,
     )
     print("Added %s to storage bucket" % id)
-    ads.update_one({"_id": id}, {"$set": {"rendered": True},
-                   "$unset": {"rendering_started": ""}})
+    queue.delete_one({"_id": id})
+    ads.update_one({"_id": id}, {"$unset": {"lost": ""}})
 
 # Load the preview of the image per id
 
@@ -108,8 +107,8 @@ def load_preview(id):
         # This ad seems to be lost!
         # Marking the ad as lost...
         print("Ad %s seems to be lost, marking..." % id)
-        ads.update_one({"_id": id}, {"$set": {"rendered": False,
-                       "lost": True}, "$unset": {"rendering_started": ""}})
+        ads.update_one({"_id": id}, {"$set": {"lost": True}})
+        queue.delete_one({"_id": id})
         return True
 
     return False
@@ -118,19 +117,12 @@ def load_preview(id):
 if __name__ == "__main__":
     x = None
     try:
-        print("All initalized, watching queue... RENDER_ALL=%s" % RENDER_ALL)
+        print("All initalized, watching queue...")
         while True:
             now = int(time())
-            # Pull one item from the queue (rendering_started!=-1)
-            x = ads.find_one_and_update(
-                {"rendering_started": {"$ne": -1, "$lt": now - 300}}, {"$set": {"rendered": False, "rendering_started": now}})
-
-            if x == None:
-                # Is this worker supposed to just render everything?
-                if RENDER_ALL == "true":
-                    # Getting ad with nonexisting renderer field (not queued)
-                    x = ads.find_one_and_update(
-                        {"rendering_started": -1}, {"$set": {"rendered": False, "rendering_started": now}})
+            # Pull one item from the queue
+            x = queue.find_one_and_update(
+                {"rendering_started": {"$lt": now - 300}}, {"$set": {"rendering_started": now}})
 
             if x != None:
                 load_preview(x["_id"])
@@ -139,7 +131,7 @@ if __name__ == "__main__":
                 sleep(10)
                 continue
 
-            # Sleeping is important for RAM cleaning on the browser
+            # Sleeping is important for RAM cleaning of the browser
             sleep(1)
 
     except KeyboardInterrupt:
@@ -148,8 +140,8 @@ if __name__ == "__main__":
         print("Error occured: %s" % str(e))
 
     if x != None:
-        ads.update_one({"_id": x["_id"]}, {
-                       "$set": {"rendered": False, "rendering_started": 0}})
+        queue.update_one({"_id": x["_id"]}, {
+                       "$set": {"rendering_started": 0}})
         print("Queuing %s for redo" % x["_id"])
 
     try:
