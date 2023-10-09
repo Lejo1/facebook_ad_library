@@ -11,7 +11,7 @@ import os
 # Databse-URL to store the ads to and read the tokens from
 DBURL = os.getenv("DBURL")
 
-URL = "https://graph.facebook.com/v15.0/ads_archive"
+URL = "https://graph.facebook.com/v17.0/ads_archive"
 # All except for ad_snapshot_url
 FIELDS = "id,ad_creation_time,ad_creative_bodies,ad_creative_link_captions,ad_creative_link_descriptions,ad_creative_link_titles,ad_delivery_start_time,ad_delivery_stop_time,bylines,currency,delivery_by_region,demographic_distribution,estimated_audience_size,impressions,languages,page_id,page_name,publisher_platforms,spend,target_locations,target_gender,target_ages,eu_total_reach,beneficiary_payers,age_country_gender_reach_breakdown"
 
@@ -21,13 +21,13 @@ LIMIT = 100
 
 # Amount of Crawls after a hourly quick crawler is stopped
 # These are used to crawl the newly created Ads every hour
-HOURLY_LIMIT = 5000
+HOURLY_LIMIT = 2000
 
 # Hours after which the whole database should be crawled again
 GLOBAL_RECRAWL = 168 # weekly
 
 # Hours after which to do a political ads only recrawl
-POLITICS_RECRAWL = 48
+POLITICS_RECRAWL = 96
 
 # Retries after which an empty cursor is considered the end of the db
 END_RETRIES = 10
