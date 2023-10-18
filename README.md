@@ -81,27 +81,27 @@ Downloading the database into a JSON file and compressing it took me increasingl
 These are created using the [mongodump](https://www.mongodb.com/docs/database-tools/mongodump/) tool and can be loaded into your own mongodb using [mongorestore](https://www.mongodb.com/docs/database-tools/mongorestore/). You can also convert them into normal json files using their [bsondump](https://www.mongodb.com/docs/database-tools/bsondump/) tool.  
 In addition to this you can use the metadata file to restore the indices used in my database.  
 Some of these datasets are also available on kaggle.  
-[Download](https://b2.nexxxt.cloud/facebook_ads/full4/ads.bson.gz) [Metadata](https://b2.nexxxt.cloud/facebook_ads/full4/ads.metadata.json.gz) (07.09.2022)  
-[Download](https://b2.nexxxt.cloud/facebook_ads/full4.1/ads.bson.gz) [Metadata](https://b2.nexxxt.cloud/facebook_ads/full4.1/ads.metadata.json.gz) (22.10.2022) [kaggle](https://www.kaggle.com/datasets/lejo11/facebook-ad-library/versions/6)  
-[Download](https://b2.nexxxt.cloud/facebook_ads/full4.2/ads.bson.gz) [Metadata](https://b2.nexxxt.cloud/facebook_ads/full4.2/ads.metadata.json.gz) (30.12.2022) [kaggle](https://www.kaggle.com/datasets/lejo11/facebook-ad-library/versions/7)  
-[Download](https://b2.nexxxt.cloud/facebook_ads/full4.3/ads.bson.gz) [Metadata](https://b2.nexxxt.cloud/facebook_ads/full4.3/ads.metadata.json.gz) (15.03.2023) [kaggle](https://www.kaggle.com/datasets/lejo11/facebook-ad-library/versions/8)  
-[Download](https://b2.nexxxt.cloud/facebook_ads/full4.4/ads.bson.gz) [Metadata](https://b2.nexxxt.cloud/facebook_ads/full4.4/ads.metadata.json.gz) (06.08.2023) [kaggle](https://www.kaggle.com/datasets/lejo11/facebook-ad-library/versions/9)  
+[Download](https://publish.nexxxt.cloud/facebook_ads/full4/ads.bson.gz) [Metadata](https://publish.nexxxt.cloud/facebook_ads/full4/ads.metadata.json.gz) (07.09.2022)  
+[Download](https://publish.nexxxt.cloud/facebook_ads/full4.1/ads.bson.gz) [Metadata](https://publish.nexxxt.cloud/facebook_ads/full4.1/ads.metadata.json.gz) (22.10.2022) [kaggle](https://www.kaggle.com/datasets/lejo11/facebook-ad-library/versions/6)  
+[Download](https://publish.nexxxt.cloud/facebook_ads/full4.2/ads.bson.gz) [Metadata](https://publish.nexxxt.cloud/facebook_ads/full4.2/ads.metadata.json.gz) (30.12.2022) [kaggle](https://www.kaggle.com/datasets/lejo11/facebook-ad-library/versions/7)  
+[Download](https://publish.nexxxt.cloud/facebook_ads/full4.3/ads.bson.gz) [Metadata](https://publish.nexxxt.cloud/facebook_ads/full4.3/ads.metadata.json.gz) (15.03.2023) [kaggle](https://www.kaggle.com/datasets/lejo11/facebook-ad-library/versions/8)  
+[Download](https://publish.nexxxt.cloud/facebook_ads/full4.4/ads.bson.gz) [Metadata](https://publish.nexxxt.cloud/facebook_ads/full4.4/ads.metadata.json.gz) (06.08.2023) [kaggle](https://www.kaggle.com/datasets/lejo11/facebook-ad-library/versions/9)  
 
 
 #### V3
 Ads have been crawled using the empty query (*) across all countries. Should in theory now contain all ads in the library.  
 Field `rendered` added for the previews.  
 No `todo.json` collection file as the stats are wrong and weren't relevant for this crawl.  
-[Download](https://b2.nexxxt.cloud/facebook_ads/full3.zip) (09.02.2022)  
-[Download](https://b2.nexxxt.cloud/facebook_ads/full3.1.zip) (03.04.2022)  
-[Download](https://b2.nexxxt.cloud/facebook_ads/full3.2.zip) (26.05.2022)
+[Download](https://publish.nexxxt.cloud/facebook_ads/full3.zip) (09.02.2022)  
+[Download](https://publish.nexxxt.cloud/facebook_ads/full3.1.zip) (03.04.2022)  
+[Download](https://publish.nexxxt.cloud/facebook_ads/full3.2.zip) (26.05.2022)
 
 #### V2
 **V2 and older:**  
 `todo.json`-File: based on the [Ad-reports](https://www.facebook.com/ads/library/report/) and contains all pages crawled from with the timestamp of the last crawl and the paging cursor (after)  
 
 Also contains page stats for multiple disclaimers and countries. Large pages should be complete now. Multiple reports from different dates were used for updating.  
-[Download](https://b2.nexxxt.cloud/facebook_ads/full2.zip)
+[Download](https://publish.nexxxt.cloud/facebook_ads/full2.zip)
 
 #### V1
 I first crawled the German and US Library and then decided to create a full crawl.
@@ -109,12 +109,12 @@ I first crawled the German and US Library and then decided to create a full craw
 ##### Full Crawl of all countries from all reports:
 For this crawl `todo.json` contains a `lang` field specifying the report the page came from.
 The reports were all automatically loaded into the db using the `import_reports.py` script.  
-[Download](https://b2.nexxxt.cloud/facebook_ads/full.zip) [Reports](https://b2.nexxxt.cloud/facebook_ads/reports_full.zip)
+[Download](https://publish.nexxxt.cloud/facebook_ads/full.zip) [Reports](https://publish.nexxxt.cloud/facebook_ads/reports_full.zip)
 
 ##### Individual countries crawled from:
 The data of these countries is also available on [kaggle.com](https://www.kaggle.com/datasets/lejo11/facebook-ad-library/versions/2)
-- Germany (DE) [Download](https://b2.nexxxt.cloud/facebook_ads/de.zip) [Report](https://b2.nexxxt.cloud/facebook_ads/report_de.csv)
-- USA (US) [Download](https://b2.nexxxt.cloud/facebook_ads/us.zip) [Report](https://b2.nexxxt.cloud/facebook_ads/report_us.csv)
+- Germany (DE) [Download](https://publish.nexxxt.cloud/facebook_ads/de.zip) [Report](https://publish.nexxxt.cloud/facebook_ads/report_de.csv)
+- USA (US) [Download](https://publish.nexxxt.cloud/facebook_ads/us.zip) [Report](https://publish.nexxxt.cloud/facebook_ads/report_us.csv)
 
 ## Crawling
 
