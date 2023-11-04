@@ -1,7 +1,7 @@
 # Facebook Ad Library Copy
 
 This Project aims to provide a searchable and complete copy of the political ads on the [Facebook Ad Library](https://www.facebook.com/ads/library/)  
-Since 17.08.2023 it also contains ads run in the EU not older than one year from that date. See the extra fields for the below.  
+Since 17.08.2023 it also contains ads run in the EU not older than that date. You can see the extra fields below.  
 Facebook already provides all this data via their web interface. The Problem with this is that it's hardly searchable and therefore no real use for Analysis of political advertisement. In Addition to this the [API](https://www.facebook.com/ads/library/api/) is hard to access and limited in many ways.  
 This data is already meant to be public so this dataset is just helping to provide the transparency ~~Facebook~~ Meta wants to provide.
 
@@ -75,6 +75,11 @@ The script from the `preview_renderer` folder is used to take a screeshot of the
 After rendering you can view them here: `https://facebook-ad-previews.nexxxt.cloud/<id>.jpg`
 
 ### Available Data-Downloads
+
+#### V5
+On the 17.08.2023 all EU ads since that date appeared in the database. It's now more than double the size before. EU ads contain extra fields as specificed above.  
+The fields used for rendering have been removed (except for lost) and are now handled seperatly.  
+[Download](https://publish.nexxxt.cloud/facebook_ads/full5.0/ads.bson.gz) [Metadata](https://publish.nexxxt.cloud/facebook_ads/full5.0/ads.metadata.json.gz) (02.11.2023) [kaggle](https://www.kaggle.com/datasets/lejo11/facebook-ad-library/versions/10)
 
 #### V4
 Downloading the database into a JSON file and compressing it took me increasingly long. That's why I switched to compressed [BSON](https://en.wikipedia.org/wiki/BSON) files (bson.gz). These are native to mongodb and can be created way faster and more reliable.  
