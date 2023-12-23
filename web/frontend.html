@@ -163,7 +163,6 @@
     <div class="card-header">
       <a v-bind:href="adlink" target="_blank">{{ data._id }}</a>
       <a v-bind:href="liblink" target="_blank"><span class="badge rounded-pill bg-dark">View in Ad-Lib</span></a>
-      <a v-bind:href="renderlink" target="_blank"><span class="badge rounded-pill bg-success">Render</span></a>
       <a v-bind:href="rawlink" target="_blank"><span class="badge rounded-pill bg-primary">Raw Data</span></a>
     </div>
     <div class="card-body">
@@ -285,9 +284,6 @@
       },
       liblink: function() {
         return "https://www.facebook.com/ads/library/?id=" + this.data._id
-      },
-      renderlink: function() {
-        return "https://render-facebook-ad.lejo.workers.dev/" + this.data._id
       },
       rawlink: function() {
         return "/ad/" + this.data._id
