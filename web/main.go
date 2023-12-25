@@ -23,7 +23,7 @@ import (
 const max_limit = 10000
 
 // Timeout in Seconds
-const timeout = 10
+const timeout = 30
 
 func min(a int64, b int64) int64 {
 	if a < b {
@@ -130,7 +130,7 @@ func getAdsByPage(c *gin.Context) {
 func searchByPage(c *gin.Context) {
 	search := c.Param("search")
 	filter := bson.M{"$text": bson.M{"$search": search}}
-	sort := bson.M{}
+	sort := bson.M{"score": bson.M{"$meta": "textScore"}}
 	returnAdList(c, filter, sort)
 }
 
