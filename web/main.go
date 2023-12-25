@@ -2,20 +2,21 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strconv"
 	"time"
-	"encoding/json"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 
-	"github.com/gin-gonic/gin"
-	"github.com/gin-contrib/cors"
 	"net/http"
+
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 )
 
 // Max Ads returned limit
@@ -25,7 +26,7 @@ const max_limit = 10000
 const timeout = 10
 
 func min(a int64, b int64) int64 {
-	if (a < b) {
+	if a < b {
 		return a
 	}
 	return b
@@ -182,30 +183,29 @@ func queuePreview(c *gin.Context) {
 
 // Json response from the Facebook debug_token endpoint
 type DEBUG_TOKEN_DATA struct {
-    App_id string `json:"app_id"`
-    Expires_at int64 `json:"expires_at"`
-		Is_valid bool `json:"is_valid"`
+	App_id     string `json:"app_id"`
+	Expires_at int64  `json:"expires_at"`
+	Is_valid   bool   `json:"is_valid"`
 }
 
 type DEBUG_TOKEN struct {
 	Data DEBUG_TOKEN_DATA `json:"data"`
 }
 
-
 // Validates the FB TOKEN
 func validateFBToken(token string) (DEBUG_TOKEN_DATA, error) {
 	var response DEBUG_TOKEN
-	resp, err := http.Get("https://graph.facebook.com/debug_token?input_token="+token+"&access_token="+token)
+	resp, err := http.Get("https://graph.facebook.com/debug_token?input_token=" + token + "&access_token=" + token)
 	if err != nil {
 		return response.Data, fmt.Errorf("Validation request failed.")
 	}
 
 	// Read Results
 	defer resp.Body.Close()
-  err = json.NewDecoder(resp.Body).Decode(&response)
-  if err != nil {
+	err = json.NewDecoder(resp.Body).Decode(&response)
+	if err != nil {
 		return response.Data, fmt.Errorf("Failed to parse json.")
-  }
+	}
 	if !response.Data.Is_valid {
 		return response.Data, fmt.Errorf("Facebook access token is invalid.")
 	}
@@ -214,7 +214,7 @@ func validateFBToken(token string) (DEBUG_TOKEN_DATA, error) {
 
 // Validate FB Token capability to do ad_archive requests
 func validateTokenCapa(token string) bool {
-	res, err := http.Get("https://graph.facebook.com/ads_archive?access_token="+token+"&search_terms=*&ad_reached_countries=US&ad_active_status=ALL&limit=1")
+	res, err := http.Get("https://graph.facebook.com/ads_archive?access_token=" + token + "&search_terms=*&ad_reached_countries=US&ad_active_status=ALL&limit=1")
 	return (err == nil && res.StatusCode == http.StatusOK)
 }
 
@@ -245,7 +245,7 @@ func addToken(c *gin.Context) {
 	expiresAt := res.Expires_at
 
 	// Validate that this token is able to do ad_archive reqeusts (completed https://www.facebook.com/ID)
-	if (!validateTokenCapa(token)) {
+	if !validateTokenCapa(token) {
 		c.String(http.StatusBadRequest, "Your token can't be used to access ads, have you validated your account? See https://www.facebook.com/ads/library/api/ for all the necessary steps.")
 		return
 	}
