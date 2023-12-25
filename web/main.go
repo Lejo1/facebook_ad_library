@@ -74,7 +74,7 @@ func getAd(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout*time.Second)
 	defer cancel()
 	id := c.Param("id")
-	filter := bson.D{{"_id", id}}
+	filter := bson.M{"_id": id}
 
 	var result bson.M
 	if err := ads.FindOne(ctx, filter).Decode(&result); err != nil {
@@ -85,7 +85,7 @@ func getAd(c *gin.Context) {
 }
 
 // Function to return Lists of Ads
-func returnAdList(c *gin.Context, filter bson.D, sort bson.D) {
+func returnAdList(c *gin.Context, filter interface{}, sort interface{}) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout*time.Second)
 	defer cancel()
 
@@ -120,8 +120,8 @@ func returnAdList(c *gin.Context, filter bson.D, sort bson.D) {
 // GET /adbypage/page_id?offset=0
 func getAdsByPage(c *gin.Context) {
 	id := c.Param("id")
-	filter := bson.D{{"page_id", id}}
-	sort := bson.D{{"ad_creation_time", -1}}
+	filter := bson.M{"page_id": id}
+	sort := bson.M{"ad_creation_time": -1}
 	returnAdList(c, filter, sort)
 }
 
@@ -129,32 +129,32 @@ func getAdsByPage(c *gin.Context) {
 // GET /search/query?offset=0
 func searchByPage(c *gin.Context) {
 	search := c.Param("search")
-	filter := bson.D{{"$text", bson.D{{"$search", search}}}}
-	sort := bson.D{}
+	filter := bson.M{"$text": bson.M{"$search": search}}
+	sort := bson.M{}
 	returnAdList(c, filter, sort)
 }
 
 // Get lost ads
 // GET /lostads?offset=0
 func getLostAds(c *gin.Context) {
-	filter := bson.D{{"lost", true}}
-	sort := bson.D{{"ad_creation_time", -1}}
+	filter := bson.M{"lost": true}
+	sort := bson.M{"ad_creation_time": -1}
 	returnAdList(c, filter, sort)
 }
 
 // Get active ads
 // GET /actives
 func getActives(c *gin.Context) {
-	filter := bson.D{{"ad_delivery_start_time", bson.D{{"$exists", true}}}, {"ad_delivery_stop_time", nil}}
-	sort := bson.D{{"ad_creation_time", -1}}
+	filter := bson.M{"ad_delivery_start_time": bson.M{"$exists": true}, "ad_delivery_stop_time": nil}
+	sort := bson.M{"ad_creation_time": -1}
 	returnAdList(c, filter, sort)
 }
 
 // Get latest ads
 // GET /latest
 func getLatest(c *gin.Context) {
-	filter := bson.D{}
-	sort := bson.D{{"$natural", -1}}
+	filter := bson.M{}
+	sort := bson.M{"$natural": -1}
 	returnAdList(c, filter, sort)
 }
 
@@ -164,14 +164,14 @@ func queuePreview(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout*time.Second)
 	defer cancel()
 	id := c.Param("id")
-	filter := bson.D{{"_id", id}}
+	filter := bson.M{"_id": id}
 
 	var result bson.M
 	if err := ads.FindOne(ctx, filter).Decode(&result); err != nil {
 		c.String(http.StatusNotFound, "Ad not found")
 		return
 	}
-	insert := bson.D{{"_id", id}, {"rendering_started", 0}}
+	insert := bson.M{"_id": id, "rendering_started": 0}
 	_, err := render_queue.InsertOne(ctx, insert)
 	if err != nil {
 		c.String(http.StatusInternalServerError, "Ad already queued for rendering.")
@@ -197,17 +197,17 @@ func validateFBToken(token string) (DEBUG_TOKEN_DATA, error) {
 	var response DEBUG_TOKEN
 	resp, err := http.Get("https://graph.facebook.com/debug_token?input_token=" + token + "&access_token=" + token)
 	if err != nil {
-		return response.Data, fmt.Errorf("Validation request failed.")
+		return response.Data, fmt.Errorf("validation request failed")
 	}
 
 	// Read Results
 	defer resp.Body.Close()
 	err = json.NewDecoder(resp.Body).Decode(&response)
 	if err != nil {
-		return response.Data, fmt.Errorf("Failed to parse json.")
+		return response.Data, fmt.Errorf("failed to parse json")
 	}
 	if !response.Data.Is_valid {
-		return response.Data, fmt.Errorf("Facebook access token is invalid.")
+		return response.Data, fmt.Errorf("facebook access token is invalid")
 	}
 	return response.Data, nil
 }
@@ -250,8 +250,8 @@ func addToken(c *gin.Context) {
 		return
 	}
 
-	filter := bson.D{{"_id", id}}
-	update := bson.D{{"$set", bson.D{{"token", token}, {"expiresAt", time.Unix(expiresAt, 0)}}}, {"$setOnInsert", bson.D{{"freshAt", 0}}}}
+	filter := bson.M{"_id": id}
+	update := bson.M{"$set": bson.M{"token": token, "expiresAt": time.Unix(expiresAt, 0)}, "$setOnInsert": bson.M{"freshAt": 0}}
 	opts := options.Update().SetUpsert(true)
 
 	_, err = tokens.UpdateOne(ctx, filter, update, opts)
