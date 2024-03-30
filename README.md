@@ -91,11 +91,11 @@ Downloading the database into a JSON file and compressing it took me increasingl
 These are created using the [mongodump](https://www.mongodb.com/docs/database-tools/mongodump/) tool and can be loaded into your own mongodb using [mongorestore](https://www.mongodb.com/docs/database-tools/mongorestore/). You can also convert them into normal json files using their [bsondump](https://www.mongodb.com/docs/database-tools/bsondump/) tool.  
 In addition to this you can use the metadata file to restore the indices used in my database.  
 Some of these datasets are also available on kaggle.  
-[Download](https://publish.nexxxt.cloud/facebook_ads/full4/ads.bson.gz) [Metadata](https://publish.nexxxt.cloud/facebook_ads/full4/ads.metadata.json.gz) (07.09.2022)  
-[Download](https://publish.nexxxt.cloud/facebook_ads/full4.1/ads.bson.gz) [Metadata](https://publish.nexxxt.cloud/facebook_ads/full4.1/ads.metadata.json.gz) (22.10.2022) [kaggle](https://www.kaggle.com/datasets/lejo11/facebook-ad-library/versions/6)  
-[Download](https://publish.nexxxt.cloud/facebook_ads/full4.2/ads.bson.gz) [Metadata](https://publish.nexxxt.cloud/facebook_ads/full4.2/ads.metadata.json.gz) (30.12.2022) [kaggle](https://www.kaggle.com/datasets/lejo11/facebook-ad-library/versions/7)  
-[Download](https://publish.nexxxt.cloud/facebook_ads/full4.3/ads.bson.gz) [Metadata](https://publish.nexxxt.cloud/facebook_ads/full4.3/ads.metadata.json.gz) (15.03.2023) [kaggle](https://www.kaggle.com/datasets/lejo11/facebook-ad-library/versions/8)  
-[Download](https://publish.nexxxt.cloud/facebook_ads/full4.4/ads.bson.gz) [Metadata](https://publish.nexxxt.cloud/facebook_ads/full4.4/ads.metadata.json.gz) (06.08.2023) [kaggle](https://www.kaggle.com/datasets/lejo11/facebook-ad-library/versions/9)  
+[Download](https://b2.nexxxt.cloud/facebook_ads/full4/ads.bson.gz) [Metadata](https://b2.nexxxt.cloud/facebook_ads/full4/ads.metadata.json.gz) (07.09.2022)  
+[Download](https://b2.nexxxt.cloud/facebook_ads/full4.1/ads.bson.gz) [Metadata](https://b2.nexxxt.cloud/facebook_ads/full4.1/ads.metadata.json.gz) (22.10.2022) [kaggle](https://www.kaggle.com/datasets/lejo11/facebook-ad-library/versions/6)  
+[Download](https://b2.nexxxt.cloud/facebook_ads/full4.2/ads.bson.gz) [Metadata](https://b2.nexxxt.cloud/facebook_ads/full4.2/ads.metadata.json.gz) (30.12.2022) [kaggle](https://www.kaggle.com/datasets/lejo11/facebook-ad-library/versions/7)  
+[Download](https://b2.nexxxt.cloud/facebook_ads/full4.3/ads.bson.gz) [Metadata](https://b2.nexxxt.cloud/facebook_ads/full4.3/ads.metadata.json.gz) (15.03.2023) [kaggle](https://www.kaggle.com/datasets/lejo11/facebook-ad-library/versions/8)  
+[Download](https://b2.nexxxt.cloud/facebook_ads/full4.4/ads.bson.gz) [Metadata](https://b2.nexxxt.cloud/facebook_ads/full4.4/ads.metadata.json.gz) (06.08.2023) [kaggle](https://www.kaggle.com/datasets/lejo11/facebook-ad-library/versions/9)  
 
 
 #### V3
