@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -89,21 +90,30 @@ func returnAdList(c *gin.Context, filter interface{}, sort interface{}) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout*time.Second)
 	defer cancel()
 
-	param := c.DefaultQuery("offset", "0")
-	offset, err := strconv.ParseInt(param, 10, 64)
+	offset_param := c.DefaultQuery("offset", "0")
+	offset, err := strconv.ParseInt(offset_param, 10, 64)
 	if err != nil {
 		c.String(http.StatusBadRequest, "Invalid Offset")
 		return
 	}
 
-	param2 := c.DefaultQuery("limit", "100")
-	limit, err := strconv.ParseInt(param2, 10, 64)
+	limit_param := c.DefaultQuery("limit", "100")
+	limit, err := strconv.ParseInt(limit_param, 10, 64)
 	if err != nil {
 		c.String(http.StatusBadRequest, "Invalid Limit")
 		return
 	}
 
-	cursor, err := ads.Find(ctx, filter, options.Find().SetSort(sort).SetSkip(offset).SetLimit(min(limit, max_limit)))
+	fields_param := c.DefaultQuery("fields", "")
+	projection := bson.M{}
+	if fields_param != "" {
+		projection = bson.M{}
+		for _, p := range strings.Split(strings.ReplaceAll(fields_param, " ", ""), ",") {
+			projection[p] = 1
+		}
+	}
+
+	cursor, err := ads.Find(ctx, filter, options.Find().SetProjection(projection).SetSort(sort).SetSkip(offset).SetLimit(min(limit, max_limit)))
 	if err != nil {
 		c.String(http.StatusInternalServerError, "Error finding ads")
 		return
@@ -117,7 +127,7 @@ func returnAdList(c *gin.Context, filter interface{}, sort interface{}) {
 }
 
 // Ads by page
-// GET /adbypage/page_id?offset=0
+// GET /adbypage/page_id?offset=0&limit=0
 func getAdsByPage(c *gin.Context) {
 	id := c.Param("id")
 	filter := bson.M{"page_id": id}
@@ -126,7 +136,7 @@ func getAdsByPage(c *gin.Context) {
 }
 
 // Search ads by page name
-// GET /search/query?offset=0
+// GET /search/query?offset=0&limit=0
 func searchByPage(c *gin.Context) {
 	search := c.Param("search")
 	filter := bson.M{"$text": bson.M{"$search": search}}
@@ -135,7 +145,7 @@ func searchByPage(c *gin.Context) {
 }
 
 // Get lost ads
-// GET /lostads?offset=0
+// GET /lostads?offset=0&limit=0
 func getLostAds(c *gin.Context) {
 	filter := bson.M{"lost": true}
 	sort := bson.M{"ad_creation_time": -1}
@@ -143,7 +153,7 @@ func getLostAds(c *gin.Context) {
 }
 
 // Get active ads
-// GET /actives
+// GET /actives?offset=0&limit=0
 func getActives(c *gin.Context) {
 	filter := bson.M{"ad_delivery_start_time": bson.M{"$exists": true}, "ad_delivery_stop_time": nil}
 	sort := bson.M{"ad_creation_time": -1}
