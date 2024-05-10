@@ -135,6 +135,14 @@ func getAdsByPage(c *gin.Context) {
 	returnAdList(c, filter, sort)
 }
 
+// Ads by creation date
+// GET /adsbydate/date?offset=0&limit=0
+func getAdsByDate(c *gin.Context) {
+	date := c.Param("date")
+	filter := bson.M{"ad_creation_time": date}
+	returnAdList(c, filter, bson.M{})
+}
+
 // Search ads by page name
 // GET /search/query?offset=0&limit=0
 func searchByPage(c *gin.Context) {
@@ -284,6 +292,7 @@ func main() {
 	router.GET("/total", getTotalAds)
 	router.GET("/ad/:id", getAd)
 	router.GET("/adsbypage/:id", getAdsByPage)
+	router.GET("/adsbydate/:date", getAdsByDate)
 	router.GET("/search/:search", searchByPage)
 	router.GET("/lostads", getLostAds)
 	router.GET("/actives", getActives)
