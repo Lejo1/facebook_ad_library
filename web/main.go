@@ -19,6 +19,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+
+
 // Max Ads returned limit
 const max_limit = 10000
 
@@ -158,6 +160,49 @@ func getLatest(c *gin.Context) {
 	returnAdList(c, filter, sort)
 }
 
+//Returns ad list with cursor
+func returnAdListWithCursor(c *gin.Context, filter interface{}, sort interface{}) {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout*time.Second)
+	defer cancel()
+
+	lastId := c.DefaultQuery("last_id", "")
+	limit, err := strconv.ParseInt(c.DefaultQuery("limit", "100"), 10, 64)
+	if err != nil {
+		c.String(http.StatusBadRequest, "Invalid Limit")
+		return
+	}
+
+	if lastId != "" {
+		filter = bson.M{"_id": bson.M{"$gt": lastId}}
+	}
+
+	cursor, err := ads.Find(ctx, filter, options.Find().SetSort(sort).SetLimit(min(limit, max_limit)))
+	if err != nil {
+		c.String(http.StatusInternalServerError, "Error finding ads")
+		return
+	}
+	var results []bson.M
+	if err = cursor.All(ctx, &results); err != nil {
+		c.String(http.StatusInternalServerError, "Error unpacking ads")
+		return
+	}
+
+	var lastResultId interface{}
+	if len(results) > 0 {
+		lastResultId = results[len(results)-1]["_id"]
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"results": results,
+		"next_id": lastResultId,
+	})
+}
+
+func getLatestWithCursor(c *gin.Context) {
+	filter := bson.M{}
+	sort := bson.M{"_id": -1}
+	returnAdListWithCursor(c, filter, sort)
+}
 // Queue an Ad to preview rendering
 // POST /render_preview/id
 func queuePreview(c *gin.Context) {
@@ -278,6 +323,7 @@ func main() {
 	router.GET("/lostads", getLostAds)
 	router.GET("/actives", getActives)
 	router.GET("/latest", getLatest)
+	router.GET("/latestWithCursor", getLatestWithCursor)
 	router.POST("/render_preview/:id", queuePreview)
 	router.POST("/addToken", addToken)
 
