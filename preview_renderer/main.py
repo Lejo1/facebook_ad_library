@@ -64,7 +64,7 @@ def load_preview(id):
 
     # Click cookie accept if the element exists
     a = browser.find_elements(
-        By.CSS_SELECTOR, 'button[data-cookiebanner="accept_button"]')
+        By.CSS_SELECTOR, 'div[aria-label="Allow all cookies"][tabindex="0"]')
     if len(a) > 0:
         a[0].click()
 
