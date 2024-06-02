@@ -3,3 +3,4 @@ __pycache__/
 secrets.env
 render-out
 b2_account_info.sqlite
+docker-compose.yml
