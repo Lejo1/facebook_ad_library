@@ -58,6 +58,7 @@ Also I later realized that when crawling very huge sites are empty although they
 - rendered (defines if the rendered version is available) (DEPRECATED since V5!)
 - rendering_started (used for queing the ads for rendering) (DEPRECATED since V5!)
 - lost (True, if the ad wasn't found while rendering)
+- _last_updated (contains the date the ad was last crawled/updated)
 
 The field `ad_snapshot_url` is not crawled as it's just a combination of the id and your access token:  
 `https://www.facebook.com/ads/archive/render_ad/?id=<id>&access_token=<token>`  

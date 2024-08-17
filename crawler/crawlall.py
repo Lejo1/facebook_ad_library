@@ -131,7 +131,8 @@ class Crawler(Thread):
 
                     # Create bulk of upsert updates to allow key-duplicates
                     upserts = [UpdateOne({'_id': x['_id']}, {
-                        '$set': x
+                        '$set': x,
+                        '$currentDate': {'_last_updated': True}
                     }, upsert=True) for x in data]
                     result = ads.bulk_write(upserts)
 
