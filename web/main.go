@@ -23,6 +23,9 @@ import (
 // Max Ads returned limit
 const max_limit = 10000
 
+// Max offset
+const max_offset = 100000
+
 // Timeout in Seconds
 const timeout = 30
 
@@ -94,6 +97,11 @@ func returnAdList(c *gin.Context, filter interface{}, sort interface{}) {
 	offset, err := strconv.ParseInt(offset_param, 10, 64)
 	if err != nil {
 		c.String(http.StatusBadRequest, "Invalid Offset")
+		return
+	}
+
+	if offset > max_offset {
+		c.String(http.StatusBadRequest, "Offset too high, this endpoint is not meant for bulk requests.")
 		return
 	}
 
