@@ -7,6 +7,13 @@ This data is already meant to be public so this dataset is just helping to provi
 
 **Site to Live access the Data: https://ad-archive.nexxxt.cloud**
 
+## Disagreements with Facebook
+
+This project is **not** authorized or associated by Facebook in any way. Following a mail to me on the 16.10.2024 I've been that the datasets are used for alleged malicious behaviour by other actors. I've been asked to take down the public access to the datasets. As I've been told, the data may only be provided to people who themselves have verified to access the Facebook Ad Library API. I will try to make this possible in the future, but for now, the data and live_demo is offline. Specifically, the kaggle datasets have been removed completely.  
+For clarification: I don't believe the datasets have been used or are useful for bad actors in the by Facebook described way. I've been told by multiple researchers that this dataset helped them with their work. As all this data is published by Facebook completely public on their [Facebook Ad Library](https://www.facebook.com/ads/library/) site, I don't think this project is enabling malicious behaviours by third-party.
+
+All of this wouldn't be that much of a problem for this project. What really irritates me is their rule of a maximum of 15 apps. This drastically reduced the rate limit I can utilise for crawling the Ad Library. I don't think I will still be able to provide complete coverage of the Ad Library with this limitation.
+
 ## About the Data
 
 The data is loaded directly from their official [API](https://www.facebook.com/ads/library/api/).
@@ -81,11 +88,17 @@ You can access the current data stored for an ad at any time at: `https://ad-arc
 
 ### Available Data-Downloads
 
+**currently not accessable!!!** See above section "Disagreements with Facebook" for more information
+
+#### V6
+Since V6 there is a _last_updated field. It's automatically updated to the current time whenever the ad crawled from the Facebook ad library. It doesn't matter if the data actually changed. This aims to allow knowledge of the persistence of ads inside the database. Older ads may not have the field, but still exist in the ad library.
+[Download](https://b2.nexxxt.cloud/facebook_ads/full6.0/ads.bson.gz) [Metadata](https://b2.nexxxt.cloud/facebook_ads/full6.0/ads.metadata.json.gz) (04.11.2024)
+
 #### V5
 On the 17.08.2023 all EU ads since that date appeared in the database. It's now more than double the size before. EU ads contain extra fields as specificed above.  
 The fields used for rendering have been removed (except for lost) and are now handled seperatly.  
-[Download](https://b2.nexxxt.cloud/facebook_ads/full5.0/ads.bson.gz) [Metadata](https://b2.nexxxt.cloud/facebook_ads/full5.0/ads.metadata.json.gz) (02.11.2023) [kaggle](https://www.kaggle.com/datasets/lejo11/facebook-ad-library/versions/10)  
-[Download](https://b2.nexxxt.cloud/facebook_ads/full5.1/ads.bson.gz) [Metadata](https://b2.nexxxt.cloud/facebook_ads/full5.1/ads.metadata.json.gz) (01.03.2024) [kaggle](https://www.kaggle.com/datasets/lejo11/facebook-ad-library/versions/11)
+[Download](https://b2.nexxxt.cloud/facebook_ads/full5.0/ads.bson.gz) [Metadata](https://b2.nexxxt.cloud/facebook_ads/full5.0/ads.metadata.json.gz) (02.11.2023)  
+[Download](https://b2.nexxxt.cloud/facebook_ads/full5.1/ads.bson.gz) [Metadata](https://b2.nexxxt.cloud/facebook_ads/full5.1/ads.metadata.json.gz) (01.03.2024)
 
 #### V4
 Downloading the database into a JSON file and compressing it took me increasingly long. That's why I switched to compressed [BSON](https://en.wikipedia.org/wiki/BSON) files (bson.gz). These are native to mongodb and can be created way faster and more reliable.  
@@ -93,10 +106,10 @@ These are created using the [mongodump](https://www.mongodb.com/docs/database-to
 In addition to this you can use the metadata file to restore the indices used in my database.  
 Some of these datasets are also available on kaggle.  
 [Download](https://b2.nexxxt.cloud/facebook_ads/full4/ads.bson.gz) [Metadata](https://b2.nexxxt.cloud/facebook_ads/full4/ads.metadata.json.gz) (07.09.2022)  
-[Download](https://b2.nexxxt.cloud/facebook_ads/full4.1/ads.bson.gz) [Metadata](https://b2.nexxxt.cloud/facebook_ads/full4.1/ads.metadata.json.gz) (22.10.2022) [kaggle](https://www.kaggle.com/datasets/lejo11/facebook-ad-library/versions/6)  
-[Download](https://b2.nexxxt.cloud/facebook_ads/full4.2/ads.bson.gz) [Metadata](https://b2.nexxxt.cloud/facebook_ads/full4.2/ads.metadata.json.gz) (30.12.2022) [kaggle](https://www.kaggle.com/datasets/lejo11/facebook-ad-library/versions/7)  
-[Download](https://b2.nexxxt.cloud/facebook_ads/full4.3/ads.bson.gz) [Metadata](https://b2.nexxxt.cloud/facebook_ads/full4.3/ads.metadata.json.gz) (15.03.2023) [kaggle](https://www.kaggle.com/datasets/lejo11/facebook-ad-library/versions/8)  
-[Download](https://b2.nexxxt.cloud/facebook_ads/full4.4/ads.bson.gz) [Metadata](https://b2.nexxxt.cloud/facebook_ads/full4.4/ads.metadata.json.gz) (06.08.2023) [kaggle](https://www.kaggle.com/datasets/lejo11/facebook-ad-library/versions/9)  
+[Download](https://b2.nexxxt.cloud/facebook_ads/full4.1/ads.bson.gz) [Metadata](https://b2.nexxxt.cloud/facebook_ads/full4.1/ads.metadata.json.gz) (22.10.2022)  
+[Download](https://b2.nexxxt.cloud/facebook_ads/full4.2/ads.bson.gz) [Metadata](https://b2.nexxxt.cloud/facebook_ads/full4.2/ads.metadata.json.gz) (30.12.2022)  
+[Download](https://b2.nexxxt.cloud/facebook_ads/full4.3/ads.bson.gz) [Metadata](https://b2.nexxxt.cloud/facebook_ads/full4.3/ads.metadata.json.gz) (15.03.2023)  
+[Download](https://b2.nexxxt.cloud/facebook_ads/full4.4/ads.bson.gz) [Metadata](https://b2.nexxxt.cloud/facebook_ads/full4.4/ads.metadata.json.gz) (06.08.2023)
 
 
 #### V3

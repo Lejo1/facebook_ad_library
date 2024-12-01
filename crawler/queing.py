@@ -55,7 +55,7 @@ def mayAddCrawlers():
             new_date = datetime.now() - timedelta(days=months*30)
             str_date = new_date.strftime("%Y-%m-%d")
             print("Crawling in the past, by date-offset: %s" % str_date)
-            addCrawler("", "&ad_delivery_date_max=%s" % str_date)
+            #addCrawler("", "&ad_delivery_date_max=%s" % str_date)
             past_offset += 3 # To do some funny mixing :) make sure not factor of 14
 
         print("Waiting 1 hour to spawn the next Thread")
