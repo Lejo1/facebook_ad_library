@@ -3,11 +3,11 @@ import requests
 from pymongo import MongoClient, UpdateOne
 from time import sleep
 from threading import Thread
-import math
 import sys
 
 import config
 import tokens
+import queing
 
 lang = ",".join(config.COUNTRIES.keys())
 
@@ -23,7 +23,7 @@ class Crawler(Thread):
     Tokens are requested directly from the tokens collection
     This one doesn't crawl per page_id but accross the whole library
     using an empty query (*)
-    after specicies the cursor to start with
+    after specifies the cursor to start with
     search allows to narrow the search
     c-limit specifies how often to crawl before stopping"""
 
@@ -160,37 +160,31 @@ class Crawler(Thread):
                 print("Sleeping 10s...")
                 sleep(10)
 
-        print("Finished, last Pointer: %s" % self.after)
+        if self.stop:
+            print("Requeing task, after: %s" % self.after)
+            c_limit = 0
+            if self.c_limit != 0:
+                c_limit = self.c_limit-count
+            queing.addCrawler(self.after, self.search, c_limit)
+        else:
+            print("Finished, last Pointer: %s" % self.after)
         return True
-
 
 # Spawn multiple crawling threads
 if __name__ == "__main__":
-    after = ""
-    if len(sys.argv) >= 2:
-        after = sys.argv[1]
-
     threads = []
     try:
+        print("Starting crawler-spawner...")
         while True:
-            for i in range(config.GLOBAL_RECRAWL):
-                print("Spawning Crawling Thread, Hour: %i" % i)
-                c_limit = config.HOURLY_LIMIT
-                if i == 0:
-                    print("Crawling Completly! Next Complete-Crawl in %s hours." % config.GLOBAL_RECRAWL)
-                    c_limit = 0
-
-                t = Crawler(after, "" ,c_limit)
+            new = queing.mayGetCrawler()
+            if new:
+                print("Spawning crawler, after=%s, search=%s, c_limit=%d" % (new["after"], new["search"] ,new["c_limit"]))
+                t = Crawler(new["after"], new["search"] ,new["c_limit"])
                 t.start()
                 threads.append(t)
-                if (i % config.POLITICS_RECRAWL) == 0:
-                    print("Crawling Political ads, next crawl in %d hours" % config.POLITICS_RECRAWL)
-                    t = Crawler("", "&ad_type=POLITICAL_AND_ISSUE_ADS")
-                    t.start()
-                    threads.append(t)
 
-                print("Waiting 1 hour to spawn the next Thread")
-                sleep(3600)
+            queing.mayAddCrawlers()
+            sleep(3)
 
     except KeyboardInterrupt:
         print("Got Interrupt, Stopping...")

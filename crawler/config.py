@@ -29,6 +29,9 @@ GLOBAL_RECRAWL = 168 # weekly
 # Hours after which to do a political ads only recrawl
 POLITICS_RECRAWL = 96
 
+# Hours after which to recrawl the ads in the past with date shift
+PAST_RECRAWL = 72
+
 # Retries after which an empty cursor is considered the end of the db
 END_RETRIES = 10
 
