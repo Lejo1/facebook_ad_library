@@ -48,8 +48,8 @@ class Crawler(Thread):
             total_time = usage["total_time"]
             total_cputime = usage["total_cputime"]
             max_time = max(total_time, total_cputime)
-            if max_time > 95 or time_access != 0:
-                delay = max(time_access * 60, (max_time-95) * 600)
+            if max_time > 97 or time_access != 0:
+                delay = max(time_access * 60, (max_time-97) * 600)
                 tokens.delayToken(id, delay)
                 print("High Usage, Key delayed for %s seconds, Rotating keys..." % delay)
                 self.token = tokens.getNewToken()
