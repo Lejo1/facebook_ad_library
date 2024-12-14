@@ -3,11 +3,11 @@ This file defines functions for token management
 The database contains a collection "tokens" with the following scheme:
 _id: APP_ID (rates are per App so it makes no sense to have multiple tokens per App)
 token: ACCESS_TOKEN (the actual token)
-expireAt: DATE
+expiresAt: DATE
 freshAt: TIME (in secs)
 
-there is a TTL index on the expireAt field:
-db.tokens.createIndex({"expireAt": 1}, {expireAfterSeconds: 0})
+there is a TTL index on the expiresAt field:
+db.tokens.createIndex({"expiresAt": 1}, {expireAfterSeconds: 0})
 and a normal one on the freshAt field:
 db.tokens.createIndex({freshAt: 1})
 """
