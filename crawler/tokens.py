@@ -1,6 +1,6 @@
 """
 This file defines functions for token management
-The database contains a collection "tokens" with the following scheme:
+The separate management database contains a collection "tokens" with the following scheme:
 _id: APP_ID (rates are per App so it makes no sense to have multiple tokens per App)
 token: ACCESS_TOKEN (the actual token)
 expiresAt: DATE
@@ -16,7 +16,7 @@ from pymongo import MongoClient
 import config
 
 # Database for the tokens
-db = MongoClient(config.DBURL)["facebook_ads_full"]
+db = MongoClient(config.DBURL)["management"]
 tokens = db["tokens"]
 
 def requenstToken():

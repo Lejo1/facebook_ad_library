@@ -56,8 +56,11 @@ func connect_db() *mongo.Client {
 var client *mongo.Client = connect_db()
 var db *mongo.Database = client.Database("facebook_ads_full")
 var ads *mongo.Collection = db.Collection("ads")
-var tokens *mongo.Collection = db.Collection("tokens")
 var render_queue *mongo.Collection = db.Collection("render_queue")
+
+// Token Collection
+var management *mongo.Database = client.Database("management")
+var tokens *mongo.Collection = management.Collection("tokens")
 
 // Get Total Ad count
 // GET /total
@@ -249,7 +252,8 @@ type TOKEN_DATA struct {
 }
 
 // Add a new token to the token collection
-// GET /addToken?token=ACCESS_TOKEN
+// POST /addToken
+// {"token": ACCESS_TOKEN}
 func addToken(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout*time.Second)
 	defer cancel()
