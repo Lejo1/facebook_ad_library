@@ -16,8 +16,10 @@ import (
 
 	"net/http"
 
+	"github.com/Backblaze/blazer/b2"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 // Max Ads returned limit
@@ -61,6 +63,81 @@ var render_queue *mongo.Collection = db.Collection("render_queue")
 // Token Collection
 var management *mongo.Database = client.Database("management")
 var tokens *mongo.Collection = management.Collection("tokens")
+
+func connect_b2_bucket() *b2.Bucket {
+	b2_client, err := b2.NewClient(context.Background(), os.Getenv("B2_APPLICATION_KEY_ID"), os.Getenv("B2_APPLICATION_KEY"))
+	if err != nil {
+		panic(err)
+	}
+
+	bucket, err := b2_client.Bucket(context.Background(), os.Getenv("B2_BUCKET_NAME"))
+	if err != nil {
+		panic(err)
+	}
+
+	return bucket
+}
+
+// B2 Client
+var b2_bucket *b2.Bucket = connect_b2_bucket()
+
+// Token signing
+var jwt_key = []byte(os.Getenv("JWT_SECRET"))
+
+// Authentication
+// Helper creating keys
+func createAccessKey(app_id string, expires int64) string {
+	// claims contains app id and expiration time
+	claims := &jwt.RegisteredClaims{
+		ExpiresAt: jwt.NewNumericDate(time.Unix(expires, 0)),
+		Subject:   app_id,
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	// Sign and get the complete encoded token as a string
+	tokenString, err := token.SignedString(jwt_key)
+	if err != nil {
+		return ""
+	}
+
+	return tokenString
+}
+
+// Helper verifying keys
+func verifyAccessKey(c *gin.Context, key string) bool {
+	token, err := jwt.ParseWithClaims(key, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return jwt_key, nil
+	}, jwt.WithExpirationRequired())
+	if err != nil {
+		c.String(http.StatusBadRequest, "Invalid access key. It may have expired.")
+		return false
+	} else if _, ok := token.Claims.(*jwt.RegisteredClaims); ok {
+		return true
+	} else {
+		c.String(http.StatusBadRequest, "Can't parse access key.")
+		return false
+	}
+
+}
+
+func authenticateJWT() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		tokenString, err := c.Cookie("accessKey")
+		if err != nil {
+			c.String(http.StatusUnauthorized, "Please verify to receive access!")
+			c.Abort()
+			return
+		}
+
+		if !verifyAccessKey(c, tokenString) {
+			c.Abort()
+			return
+		}
+
+		c.Next()
+	}
+}
 
 // Get Total Ad count
 // GET /total
@@ -251,6 +328,35 @@ type TOKEN_DATA struct {
 	Token string `json:"token"`
 }
 
+// Provides access to a user from a provided facebook access token
+// POST /getAccess
+// {"token": ACCESS_TOKEN}
+func getAccess(c *gin.Context) {
+	var data TOKEN_DATA
+	if c.ShouldBind(&data) != nil {
+		c.String(http.StatusBadRequest, "Please provide a valid token.")
+		return
+	}
+	token := data.Token
+
+	// Validate FB Token
+	res, err := validateFBToken(token)
+	if err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	}
+	id := res.App_id
+	expiresAt := res.Expires_at
+
+	// Validate that this token is able to do ad_archive reqeusts (completed https://www.facebook.com/ID)
+	if !validateTokenCapa(token) {
+		c.String(http.StatusBadRequest, "Your token can't be used to access ads, have you validated your account? See https://www.facebook.com/ads/library/api/ for all the necessary steps.")
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"accessKey": createAccessKey(id, expiresAt), "expiresAt": expiresAt})
+}
+
 // Add a new token to the token collection
 // POST /addToken
 // {"token": ACCESS_TOKEN}
@@ -292,6 +398,22 @@ func addToken(c *gin.Context) {
 	c.String(http.StatusOK, "Successfully Added token! Thanks!")
 }
 
+// Load new Download Access Key from backblaze
+func loadB2AccessKey(ctx context.Context) string {
+	token, err := b2_bucket.AuthToken(ctx, "facebook_ads", time.Hour*24*7)
+	if err != nil {
+		panic(err)
+	}
+
+	return token
+}
+
+// Provides a Download token for the b2 bucket
+// GET /getDownloadToken?key=ACCESS_KEY
+func getDownloadToken(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"downloadToken": loadB2AccessKey(context.Background())})
+}
+
 func main() {
 	defer func() {
 		client.Disconnect(context.Background())
@@ -301,16 +423,19 @@ func main() {
 	router.Use(cors.Default())
 
 	router.StaticFile("/", "frontend.html")
+	router.StaticFile("/verification", "verification.html")
 	router.GET("/total", getTotalAds)
-	//router.GET("/ad/:id", getAd)
-	//router.GET("/adsbypage/:id", getAdsByPage)
-	//router.GET("/adsbydate/:date", getAdsByDate)
-	//router.GET("/search/:search", searchByPage)
-	//router.GET("/lostads", getLostAds)
-	//router.GET("/actives", getActives)
-	//router.GET("/latest", getLatest)
-	//router.POST("/render_preview/:id", queuePreview)
+	router.GET("/ad/:id", authenticateJWT(), getAd)
+	router.GET("/adsbypage/:id", authenticateJWT(), getAdsByPage)
+	router.GET("/adsbydate/:date", authenticateJWT(), getAdsByDate)
+	router.GET("/search/:search", authenticateJWT(), searchByPage)
+	router.GET("/lostads", authenticateJWT(), getLostAds)
+	router.GET("/actives", authenticateJWT(), getActives)
+	router.GET("/latest", authenticateJWT(), getLatest)
+	router.POST("/render_preview/:id", authenticateJWT(), queuePreview)
+	router.POST("/getAccess", getAccess)
 	router.POST("/addToken", addToken)
+	router.GET("/getDownloadToken", authenticateJWT(), getDownloadToken)
 
 	router.Run()
 }

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.min.js"
+    integrity="sha256-PB1LDFSejenUqbr7EqtwtqGsdH0HKTuYxbJbZjKZmv0=" crossorigin="anonymous"></script>
+  <title>Verification</title>
+</head>
+
+<body>
+  <nav class="navbar bg-body-tertiary">
+    <div class="container-fluid">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="/">Home</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Verification</li>
+        </ol>
+      </nav>
+    </div>
+  </nav><br>
+  <main id="main" class="container-fluid">
+    <div class="container bg-light rounded-3">
+      <h1>Verification of your Facebook Ad Archive API access</h1>
+      Please complete the following steps to get access to querys and datasets.<br>
+      <div class="accordion" id="accordionProgress">
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne"
+              aria-expanded="true" aria-controls="collapseOne">
+              Create App and Login
+            </button>
+          </h2>
+          <div id="collapseOne" class="accordion-collapse collapse show">
+            <div v-if="facebook_token.length" class="accordion-body">
+              <strong class="text-success">Success!</strong> You successfully created an app and logged in with it. We
+              were able to extract the access token! If you need it somewhere else, here it is:
+              <code>{{ facebook_token }}</code>
+            </div>
+            <div v-if="!facebook_token.length" class="accordion-body">
+              <strong class="text-danger">Error: </strong> We were not able to extract the access token
+              from the URL. Did you successfully login? Please try again at the Home page!
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+              data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+              Token Verification
+            </button>
+          </h2>
+          <div ref="verificationCollapse" id="collapseTwo" class="accordion-collapse collapse">
+            <div v-if="!(access_key_expires+verificationError.length)" class="accordion-body">
+              <strong class="text-info">Working!</strong> You'r token is currently being verified.
+              <div class="spinner-grow" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+            <div v-if="access_key_expires" class="accordion-body">
+              <strong class="text-success">Success!</strong> We were able to verify your facebook access token!
+              Congrats! We created you an access key to the data. It will expire at
+              <code>{{ formattedExpire }}</code>.
+              It was saved as a cookie and can be used for further requests. If you need it somewhere else, here it is:
+              <code>{{ access_key }}</code>
+              You're now able to access the API! Go back to the homepage to access the data but please move on to the
+              next step to support this project!
+            </div>
+            <div v-if="verificationError.length" class="accordion-body">
+              <strong class="text-danger">Error: </strong> Your token could not be verified. Reason:
+              <code>{{ verificationError }}</code>
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+              data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+              Support the project! Donate your facebook access token.
+            </button>
+          </h2>
+          <div ref="donateCollapse" id="collapseThree" class="accordion-collapse collapse">
+            <div class="accordion-body">
+              <strong>Thanks for your interest into this project!</strong> To keep the database and datasets always up
+              to date, we need <strong>your Help!</strong> Please consider donating your facebook API access token to
+              the project. It will be used to automatically update the database and datasets. Currently we desperately
+              need more access tokens to keep the project running.
+              Your token will only used for the purpose of updating the database. It will automatically expire after
+              this time: {{ formattedExpire }}<br>
+              As the rate limit is app wise and not user wise, you can still use the API on your one. If you created
+              this app just for verification you shouldn't notice anything!<br>
+              <strong>Thanks for your support!</strong>
+              <form v-on:submit="donateToken" class="input-group">
+                <button type="submit" name="button" class="btn btn-success">Donate access token</button>
+              </form><br>
+              {{ donateMsg }}
+            </div>
+          </div>
+        </div>
+      </div>
+      <br>
+  </main><br>
+</body>
+<footer class="container bg-light rounded-3">
+  <div class="row">
+    <div class="col">
+      <h5>Notes:</h5>
+      <p>The data was automatically crawled as described on Github. This of course also means that there might be
+        wrong or missing data. Also the search might not always return the data you expect it to. Please contact
+        me if you notice anything
+        wrong!</p>
+    </div>
+    <div class="col">
+      <h5>Links/Contact:</h5>
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-github"
+        viewBox="0 0 16 16">
+        <path
+          d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z" />
+      </svg> <a href="https://github.com/Lejo1/facebook_ad_library">Github Project</a><br>
+      E-Mail: <a class="col" href="mailto:ad-archive@nexxxt.cloud">ad-archive@nexxxt.cloud</a><br>
+      <a href="https://status.nexxxt.cloud/">Status</a>
+    </div>
+  </div>
+  <p>This site is still under construction!</p>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+  integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios@1.7.9/dist/axios.min.js"
+  integrity="sha256-nPSCRFgdbLZIbWcC9zcikihPrvJImjvkGawbxwYGvnI=" crossorigin="anonymous"></script>
+<script>
+  // Vuejs
+  var main = new Vue({
+    el: "#main",
+    data: {
+      facebook_token: "",
+      verificationError: "",
+      access_key: "",
+      access_key_expires: 0,
+      formattedExpire: "",
+      donateMsg: "",
+    },
+    methods: {
+      donateToken: function (e) {
+        if (e) {
+          e.preventDefault();
+        }
+        let vm = this;
+        axios.post('/addToken', {
+          token: this.facebook_token
+        })
+          .then(function (response) {
+            vm.donateMsg = response.data;
+          })
+          .catch(function (error) {
+            vm.donateMsg = error.response.data;
+          });
+      }
+    },
+    mounted: function () {
+      // hash for ad and callback access_token
+      if (window.location.hash != "") {
+        content = location.hash.split("=");
+        if (content[0] == "#access_token") {
+          this.facebook_token = content[1].split("&")[0];
+          let vm = this;
+          (new bootstrap.Collapse(this.$refs.verificationCollapse)).toggle();
+          axios.post('/getAccess', {
+            token: this.facebook_token
+          })
+            .then(function (response) {
+              vm.access_key = response.data.accessKey;
+              vm.access_key_expires = response.data.expiresAt;
+              let dateTime = new Date(vm.access_key_expires * 1000);
+              vm.formattedExpire = dateTime.toGMTString();
+              document.cookie = "accessKey=" + vm.access_key + "; expires=" + vm.formattedExpire + "; Secure; SameSite=Strict; path=/";
+              (new bootstrap.Collapse(vm.$refs.donateCollapse)).toggle();
+            })
+            .catch(function (error) {
+              vm.verificationError = error.response.data;
+            });
+        }
+      }
+    }
+  });
+</script>
+
+</html>

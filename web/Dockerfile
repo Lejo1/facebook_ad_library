@@ -13,5 +13,6 @@ FROM scratch
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /go/bin/app /go/bin/app
 COPY frontend.html .
+COPY verification.html .
 
 ENTRYPOINT ["/go/bin/app"]

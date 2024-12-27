@@ -7,8 +7,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
-  <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.min.js" integrity="sha256-1gHyKSR7Jh0YGBmI9zN7P2UhZRh/PCKhCYIaUOqWoPk=" crossorigin="anonymous"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.min.js"
+    integrity="sha256-PB1LDFSejenUqbr7EqtwtqGsdH0HKTuYxbJbZjKZmv0=" crossorigin="anonymous"></script>
   <title>Facebook Ad Archive</title>
 </head>
 
@@ -17,13 +19,156 @@
     <br>
     <div class="container bg-light rounded-3">
       <h1>Facebook Ad Archive</h1>
-      This Project aims to provide a searchable and complete copy of the political ads on the <a href="https://www.facebook.com/ads/library/" target="_blank">Facebook Ad Library</a>
+      This Project aims to provide a searchable and complete copy of the political ads on the <a
+        href="https://www.facebook.com/ads/library/" target="_blank">Facebook Ad Library</a>
       <p>Since 17.08.2023 it also contains ads run in the EU.
-      <p>You can find further information on the source of the data and whole database downloads on <a href="https://github.com/Lejo1/facebook_ad_library">Github</a></p>
+      <p>You can find further information on the source of the data and whole database downloads on <a
+          href="https://github.com/Lejo1/facebook_ad_library">Github</a></p>
       <p>This project is <b>not</b> authorized or associated by Facebook in any way.</p>
-      Here you can display ads by their ad/page id or search for them by their page name.
+      Here you can access ads by their ad/page id or search for them by their page name. You can even download the whole
+      dataset!
       <p>There are total <b>{{ total_ads }}</b> ads in the archive.</p>
-      <p><b>The access to the data is currently disabled!!! See the "Disagreements with Facebook" section on Github for more information.</b></p>
+      <p><b>The access is restriced to people who can themselves access the Facebook Ad Library API.</b> See the <a
+          href="https://github.com/Lejo1/facebook_ad_library?tab=readme-ov-file#disagreements-with-facebook">Disagreements
+          with Facebook</a> section on Github for more information why.</p>
+    </div><br>
+    <div class="container bg-light rounded-3">
+      <h2>Get Access <span v-if="!document.cookie.length" class="badge rounded-pill text-bg-danger">Not verified
+          yet!</span><span v-if="document.cookie.length" class="badge rounded-pill text-bg-success">Already
+          Verfied!</span>
+      </h2>
+      You have to complete the following steps to receive access to the datasets:<br>
+      <ol>
+        <li>Create a <a href="https://developers.facebook.com/" target="_blank">Meta developers account</a></li>
+        <li>Get verified to run political ads here: <a href="https://www.facebook.com/ID"
+            target="_blank">https://www.facebook.com/ID</a>. You have to get verified for <b>running</b> the ads to
+          access the Ad Library!</li>
+        <li>Create an App of categorie Other -> Business. You don't have to put it into Live App Mode, the developement
+          mode is enough.</li>
+        <li>Add Facebook Login with <code>https://ad-archive.nexxxt.cloud/verification</code> as Valid OAuth Redirect
+          URI</li>
+        <li>Enter you App-Id below and Login using your Facebook account!</li>
+      </ol>
+      <form v-on:submit="startVerification" class="input-group">
+        <input v-model="appIdInput" type="text" class="form-control" placeholder="App Id">
+        <button type="submit" name="button" class="btn btn-success">Get verified!</button>
+      </form>
+      <i>By submitting your App-Id and loging in with your facebook account you confirm that you will only use the data
+        in accordance with all applicable Meta Platform Terms and
+        Developer Policies. Especially you will only share the data with people who can themselves access the Facebook
+        Ad Library API (completed at least steps 1+2).</i>
+    </div><br>
+    <div class="container-fluid bg-light rounded-3">
+      <h2>Available Dataset-Dump Downloads</h2><br>
+      <strong>Only accessable to people who got themselves verified!</strong><br>
+      These are very large full dumps of the database. They contain all ads crawled from the Facebook Ad Library. The
+      data is typically stored in .bson files.<br>
+      <p class="d-inline-flex gap-1">
+        <button @click.once="loadDownloadToken" class="btn btn-primary" type="button" data-bs-toggle="collapse"
+          data-bs-target="#collapseDownload" aria-expanded="false" aria-controls="collapseDownload">
+          Show downloads
+        </button>
+      </p>
+      <div class="collapse" id="collapseDownload">
+        The links contain an Authorization key, don't share them!
+        <p>
+        <h4>V6</h4>
+        </p>
+        Since V6 there is a _last_updated field. It's automatically updated to the current time whenever the ad crawled
+        from the Facebook ad library. It doesn't matter if the data actually changed. This aims to allow knowledge of
+        the
+        persistence of ads inside the database. Older ads may not have the field, but still exist in the ad library.<br>
+        <restrictedlink href="https://b2.nexxxt.cloud/facebook_ads/full6.0/ads.bson.gz">Download</restrictedlink>
+        <restrictedlink href="https://b2.nexxxt.cloud/facebook_ads/full6.0/ads.metadata.json.gz">Metadata
+        </restrictedlink> (04.11.2024)
+        <p>
+        <h4>V5</h4>
+        </p>
+        On the 17.08.2023 all EU ads since that date appeared in the database. It's now more than double the size
+        before.
+        EU ads contain extra fields as specificed above.
+        The fields used for rendering have been removed (except for lost) and are now handled seperatly. <br>
+        <restrictedlink href="https://b2.nexxxt.cloud/facebook_ads/full5.0/ads.bson.gz">Download</restrictedlink>
+        <restrictedlink href="https://b2.nexxxt.cloud/facebook_ads/full5.0/ads.metadata.json.gz">Metadata
+        </restrictedlink>
+        (02.11.2023)<br>
+        <restrictedlink href="https://b2.nexxxt.cloud/facebook_ads/full5.1/ads.bson.gz">Download</restrictedlink>
+        <restrictedlink href="https://b2.nexxxt.cloud/facebook_ads/full5.1/ads.metadata.json.gz">Metadata
+        </restrictedlink>
+        (01.03.2024)<br>
+        <p>
+        <h4>V4</h4>
+        </p>
+        Downloading the database into a JSON file and compressing it took me increasingly long. That's why I
+        switched to
+        compressed <a href="https://en.wikipedia.org/wiki/BSON">BSON</a> files (bson.gz). These are native to
+        mongodb
+        and can be created way faster and more reliable.
+        These are created using the <a href="https://www.mongodb.com/docs/database-tools/mongodump/">mongodump</a>
+        tool
+        and can be loaded into your own mongodb using <a
+          href="https://www.mongodb.com/docs/database-tools/mongorestore/">mongorestore</a>. You
+        can also convert them into normal json files using their <a
+          href="https://www.mongodb.com/docs/database-tools/bsondump/">bsondump</a> tool.
+        In addition to this you can use the metadata file to restore the indices used in my database. <br>
+        <restrictedlink href="https://b2.nexxxt.cloud/facebook_ads/full4/ads.bson.gz">Download</restrictedlink>
+        <restrictedlink href="https://b2.nexxxt.cloud/facebook_ads/full4/ads.metadata.json.gz">Metadata
+        </restrictedlink> (07.09.2022)<br>
+        <restrictedlink href="https://b2.nexxxt.cloud/facebook_ads/full4.1/ads.bson.gz">Download
+        </restrictedlink>
+        <restrictedlink href="https://b2.nexxxt.cloud/facebook_ads/full4.1/ads.metadata.json.gz">Metadata
+        </restrictedlink> (22.10.2022)<br>
+        <restrictedlink href="https://b2.nexxxt.cloud/facebook_ads/full4.2/ads.bson.gz">Download</restrictedlink>
+        <restrictedlink href="https://b2.nexxxt.cloud/facebook_ads/full4.2/ads.metadata.json.gz">Metadata
+        </restrictedlink> (30.12.2022)<br>
+        <restrictedlink href="https://b2.nexxxt.cloud/facebook_ads/full4.3/ads.bson.gz">Download</restrictedlink>
+        <restrictedlink href="https://b2.nexxxt.cloud/facebook_ads/full4.3/ads.metadata.json.gz">Metadata
+        </restrictedlink>
+        (15.03.2023)<br>
+        <restrictedlink href="https://b2.nexxxt.cloud/facebook_ads/full4.4/ads.bson.gz">Download</restrictedlink>
+        <restrictedlink href="https://b2.nexxxt.cloud/facebook_ads/full4.4/ads.metadata.json.gz">Metadata
+        </restrictedlink>
+        (06.08.2023)<br>
+        <p>
+        <h4>V3</h4>
+        </p>
+        Ads have been crawled using the empty query (*) across all countries. Should in theory now contain
+        all ads in
+        the library. Field `rendered` added for the previews.
+        No `todo.json` collection file as the stats are wrong and weren't relevant for this crawl. <br>
+        <restrictedlink href="https://b2.nexxxt.cloud/facebook_ads/full3.zip">Download</restrictedlink> (09.02.2022)<br>
+        <restrictedlink href="https://b2.nexxxt.cloud/facebook_ads/full3.1.zip">Download</restrictedlink>
+        (03.04.2022)<br>
+        <restrictedlink href="https://b2.nexxxt.cloud/facebook_ads/full3.2.zip">Download</restrictedlink>
+        (26.05.2022)<br>
+        <p>
+        <h4>V2</h4>
+        </p>
+        **V2 and older:**
+        `todo.json`-File: based on the <a href="https://www.facebook.com/ads/library/report/">Ad-reports</a> and
+        contains all pages crawled from with the
+        crawled from with the timestamp of the last crawl and the paging cursor (after) <br>
+        Also contains page stats for multiple disclaimers and countries. Large pages should be
+        complete now. Multiple
+        reports from different dates were used for updating. <br>
+        <restrictedlink href="https://b2.nexxxt.cloud/facebook_ads/full2.zip">Download</restrictedlink> (09.02.2022)
+        <p>
+        <h4>V1</h4>
+        </p>
+        I first crawled the German and US Library and then decided to create a full crawl.<br>
+        Full Crawl of all countries from all reports:<br>
+        For this crawl `todo.json` contains a `lang` field specifying the report the page came from.
+        The reports were all automatically loaded into the db using the `import_reports.py`
+        script.<br>
+        <restrictedlink href="https://b2.nexxxt.cloud/facebook_ads/full.zip">Download</restrictedlink>
+        <restrictedlink href="https://b2.nexxxt.cloud/facebook_ads/reports_full.zip">Reports</restrictedlink><br>
+        Individual countries crawled from:<br>
+        - Germany (DE) <restrictedlink href="https://b2.nexxxt.cloud/facebook_ads/de.zip">Download
+        </restrictedlink>
+        <restrictedlink href="https://b2.nexxxt.cloud/facebook_ads/report_de.csv">Report</restrictedlink><br>
+        - USA (US) <restrictedlink href="https://b2.nexxxt.cloud/facebook_ads/us.zip">Download</restrictedlink>
+        <restrictedlink href="https://b2.nexxxt.cloud/facebook_ads/report_us.csv">Report</restrictedlink>
+      </div>
     </div><br>
     <div class="container bg-light rounded-3">
       <h2>Single Ad</h2>
@@ -40,20 +185,25 @@
     </div><br>
     <div class="container-fluid bg-light rounded-3">
       <h2>Lost Ads</h2>
-      <p>These Ads sorted by creation time weren't found on the Facebook Ad Library while trying to render them. This doesn't has to mean they are still lost!</p>
-      <button v-on:click="$refs.lostads.submit()" type="submit" name="button" class="btn btn-success">Load</button><br><br>
+      <p>These Ads sorted by creation time weren't found on the Facebook Ad Library while trying to render them. This
+        doesn't has to mean they are still lost!</p>
+      <button v-on:click="$refs.lostads.submit()" type="submit" name="button"
+        class="btn btn-success">Load</button><br><br>
       <adlist ref="lostads" endpoint="/lostads" input=""></adlist><br>
     </div><br>
     <div class="container-fluid bg-light rounded-3">
       <h2>Active Ads</h2>
       <p>These Ads sorted by creation time are still active. This means they've got a start but no stop time.</p>
-      <button v-on:click="$refs.actives.submit()" type="submit" name="button" class="btn btn-success">Load</button><br><br>
+      <button v-on:click="$refs.actives.submit()" type="submit" name="button"
+        class="btn btn-success">Load</button><br><br>
       <adlist ref="actives" endpoint="/actives" input=""></adlist><br>
     </div><br>
     <div class="container-fluid bg-light rounded-3">
       <h2>Latest Added/Updated Ads</h2>
-      <p>This query uses the reverse natural order by MongoDB. Lastly added or updated ads will therefore show first. The "Load More" Button might return ads already loaded when new ads are added.</p>
-      <button v-on:click="$refs.latest.submit()" type="submit" name="button" class="btn btn-success">Load</button><br><br>
+      <p>This query uses the reverse natural order by MongoDB. Lastly added or updated ads will therefore show first.
+        The "Load More" Button might return ads already loaded when new ads are added.</p>
+      <button v-on:click="$refs.latest.submit()" type="submit" name="button"
+        class="btn btn-success">Load</button><br><br>
       <adlist ref="latest" endpoint="/latest" input=""></adlist><br>
     </div>
   </main><br>
@@ -62,12 +212,15 @@
   <div class="row">
     <div class="col">
       <h5>Notes:</h5>
-      <p>The data was automatically crawled as described on Github. This of course also means that there might be wrong or missing data. Also the search might not always return the data you expect it to. Please contact me if you notice anything
+      <p>The data was automatically crawled as described on Github. This of course also means that there might be wrong
+        or missing data. Also the search might not always return the data you expect it to. Please contact me if you
+        notice anything
         wrong!</p>
     </div>
     <div class="col">
       <h5>Links/Contact:</h5>
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-github" viewBox="0 0 16 16">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-github"
+        viewBox="0 0 16 16">
         <path
           d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z" />
       </svg> <a href="https://github.com/Lejo1/facebook_ad_library">Github Project</a><br>
@@ -77,9 +230,12 @@
   </div>
   <p>This site is still under construction!</p>
 </footer>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/axios@1.4.0/dist/axios.min.js" integrity="sha256-/UzhKodZQoGvzunHOkD+eswoK8yedk+7OvoUgalqCR4=" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.3/dist/chart.umd.js" integrity="sha256-Eaj6jINnR+utbomJzb3YJJGYC4kxA28dVQ+CT1nqcPM=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+  integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios@1.7.9/dist/axios.min.js"
+  integrity="sha256-nPSCRFgdbLZIbWcC9zcikihPrvJImjvkGawbxwYGvnI=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.js"
+  integrity="sha256-KBLLiCX9xXRp6y97sFXpQpJE5ZmSBRHuR36ChJm2Mss=" crossorigin="anonymous"></script>
 <script>
   // Chart Consts
   const backgroundColors = [
@@ -111,16 +267,31 @@
 <strong>{{ header }}</strong> {{ msg }}
 </div>`,
     methods: {
-      dissmiss: function() {
+      dissmiss: function () {
         this.$emit("clear", "");
       }
     },
     computed: {
-      colour: function() {
+      colour: function () {
         return "alert-" + this.kind
       },
-      header: function() {
+      header: function () {
         return ((this.kind == "danger") ? "Error:" : "Success:")
+      }
+    },
+  });
+
+  // Restricted Download Link
+  Vue.component('restrictedlink', {
+    props: ["href"],
+    name: "restrictedlink",
+    data: function() {
+      return {}
+    },
+    template: `<a v-bind:href="reallink"><slot></slot></a>`,
+    computed: {
+      reallink: function () {
+        return this.href + "?Authorization=" + this.$root.downloadToken
       }
     },
   });
@@ -226,7 +397,7 @@
 </svg> EU Target Locations (included): <b v-for="l in data.target_locations" v-if="!l.excluded"> {{ l.name }}</b></li>
       <li v-if="data.target_locations && data.target_locations.some(e => e.excluded)" class="list-group-item"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-globe-central-south-asia" viewBox="0 0 16 16">
 <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0ZM4.882 1.731a.482.482 0 0 0 .14.291.487.487 0 0 1-.126.78l-.291.146a.721.721 0 0 0-.188.135l-.48.48a1 1 0 0 1-1.023.242l-.02-.007a.996.996 0 0 0-.462-.04 7.03 7.03 0 0 1 2.45-2.027Zm-3 9.674.86-.216a1 1 0 0 0 .758-.97v-.184a1 1 0 0 1 .445-.832l.04-.026a1 1 0 0 0 .152-1.54L3.121 6.621a.414.414 0 0 1 .542-.624l1.09.818a.5.5 0 0 0 .523.047.5.5 0 0 1 .724.447v.455a.78.78 0 0 0 .131.433l.795 1.192a1 1 0 0 1 .116.238l.73 2.19a1 1 0 0 0 .949.683h.058a1 1 0 0 0 .949-.684l.73-2.189a1 1 0 0 1 .116-.238l.791-1.187A.454.454 0 0 1 11.743 8c.16 0 .306.084.392.218.557.875 1.63 2.282 2.365 2.282a.61.61 0 0 0 .04-.001 7.003 7.003 0 0 1-12.658.905Z"/>
-</svg> EU Target Locations (excluded): <b v-for="l in data.target_locations" v-if="l.excluded"> {{ l.name }}<b></li>
+</svg> EU Target Locations (excluded): <b v-for="l in data.target_locations" v-if="l.excluded"> {{ l.name }}</b></li>
       <li v-if="data.delivery_by_region" class="list-group-item"><canvas ref="region_chart"></canvas></li>
       <li v-if="data.demographic_distribution" class="list-group-item"><canvas ref="demo_chart"></canvas></li>
     </ul>
@@ -248,7 +419,7 @@
       };
     },
     methods: {
-      makelink: function(i) {
+      makelink: function (i) {
         let url = " ";
         if (c_exists(this.data.ad_creative_link_captions, i)) {
           url = this.data.ad_creative_link_captions[i];
@@ -258,42 +429,42 @@
         }
         return url
       },
-      togglepreview: function() {
+      togglepreview: function () {
         this.load_preview = true;
         (new bootstrap.Collapse(this.$refs.preview_collapse)).toggle();
       },
-      renderpreview: function() {
+      renderpreview: function () {
         this.load_preview = false;
         this.rendering = true;
         const vm = this;
         axios.post('/render_preview/' + this.data._id)
-          .then(function(response) {
+          .then(function (response) {
             vm.msg = response.data.message;
             vm.kind = "success";
           })
-          .catch(function(error) {
+          .catch(function (error) {
             vm.msg = error.response.data;
             vm.kind = "danger";
           })
-          .then(function() {
+          .then(function () {
             vm.rendering = false;
           });
       }
     },
     computed: {
-      adlink: function() {
-        return "/#" + this.data._id
+      adlink: function () {
+        return "/#ad=" + this.data._id
       },
-      liblink: function() {
+      liblink: function () {
         return "https://www.facebook.com/ads/library/?id=" + this.data._id
       },
-      rawlink: function() {
+      rawlink: function () {
         return "/ad/" + this.data._id
       },
-      pagelink: function() {
+      pagelink: function () {
         return "https://www.facebook.com/ads/library/?active_status=all&ad_type=all&country=ALL&view_all_page_id=" + this.data.page_id + "&search_type=page&media_type=all"
       },
-      content_index: function() {
+      content_index: function () {
         let out = 0;
         const max = Math.max(arrsize(this.data.ad_creative_bodies), arrsize(this.data.ad_creative_link_captions), arrsize(this.data.ad_creative_link_titles), arrsize(this.data.ad_creative_link_descriptions))
         for (let i = 0; i < max; i++) {
@@ -303,20 +474,20 @@
         }
         return out
       },
-      estimated_audience: function() {
+      estimated_audience: function () {
         return text_bounds(this.data.estimated_audience_size)
       },
-      spend: function() {
+      spend: function () {
         return text_bounds(this.data.spend)
       },
-      impressions: function() {
+      impressions: function () {
         return text_bounds(this.data.impressions)
       },
-      imglink: function() {
+      imglink: function () {
         return "https://facebook-ad-previews.nexxxt.cloud/" + this.data._id + ".jpg"
       }
     },
-    mounted: function() {
+    mounted: function () {
       if (this.data.delivery_by_region) {
         const ctx = this.$refs.region_chart;
         new Chart(ctx, {
@@ -428,11 +599,11 @@
       };
     },
     methods: {
-      load: function() {
+      load: function () {
         const vm = this;
         this.loading = true;
         axios.get(this.endpoint + this.input + "?offset=" + this.ads.length)
-          .then(function(response) {
+          .then(function (response) {
             if (response.data == null) {
               vm.msg = "No (more) ads found!";
               vm.next = false;
@@ -443,15 +614,15 @@
               }
             }
           })
-          .catch(function(error) {
+          .catch(function (error) {
             vm.msg = error.response.data;
             vm.next = false;
           })
-          .then(function() {
+          .then(function () {
             vm.loading = false;
           });
       },
-      submit: function() {
+      submit: function () {
         this.ads = [];
         this.next = true;
         this.load();
@@ -474,7 +645,7 @@
       };
     },
     methods: {
-      submit: function(e) {
+      submit: function (e) {
         e.preventDefault();
         this.$refs.adlist.submit();
       }
@@ -486,37 +657,63 @@
     el: "#main",
     data: {
       total_ads: "Loading...",
-      input: window.location.hash.substring(1),
+      input: "",
       msg: "",
-      ad: []
+      appIdInput: "",
+      ad: [],
+      downloadToken: ""
     },
     methods: {
-      load: function(e) {
+      load: function (e) {
         if (e) {
           e.preventDefault();
         }
         this.ad = [];
         const vm = this;
         axios.get('/ad/' + this.input)
-          .then(function(response) {
+          .then(function (response) {
             vm.ad = response.data;
           })
-          .catch(function(error) {
+          .catch(function (error) {
             vm.msg = error.response.data;
           });
+      },
+      startVerification: function (e) {
+        if (e) {
+          e.preventDefault();
+        }
+        //weird things, somehow gives long live tokens right away :)
+        window.open("https://www.facebook.com/v21.0/dialog/oauth?client_id=" + this.appIdInput + "&auth_type=rerequest&scope=public_profile,ads_read&redirect_uri=https://ad-archive.nexxxt.cloud/verification&response_type=code%20token", '_self');
+      },
+      loadDownloadToken: function (e) {
+        if (document.cookie.length) {
+          const vm = this;
+          axios.get('/getDownloadToken')
+            .then(function (response) {
+              vm.downloadToken = response.data.downloadToken;
+            })
+            .catch(function (error) {
+              alert(error)
+            });
+        }
       }
     },
-    mounted: function() {
+    mounted: function () {
       const vm = this;
       axios.get('/total')
-        .then(function(response) {
+        .then(function (response) {
           vm.total_ads = response.data;
         })
-        .catch(function(error) {
+        .catch(function (error) {
           vm.total_ads = error.response.data;
         });
+      // hash for ad and callback access_token
       if (window.location.hash != "") {
-        this.load();
+        content = location.hash.split("=");
+        if (content[0] == "#ad") {
+          this.input = content[1];
+          this.load();
+        }
       }
     }
   });
