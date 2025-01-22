@@ -290,7 +290,7 @@ func queuePreview(c *gin.Context) {
 // Json response from the Facebook debug_token endpoint
 type DEBUG_TOKEN_DATA struct {
 	App_id     string `json:"app_id"`
-	Expires_at int64  `json:"expires_at"`
+	Expires_at int64  `json:"data_access_expires_at"`
 	Is_valid   bool   `json:"is_valid"`
 }
 
