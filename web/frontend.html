@@ -49,8 +49,12 @@
           URI</li>
         <li>Enter you App-Id below and Login using your Facebook account!</li>
       </ol>
-      <form v-on:submit="startVerification" class="input-group">
-        <input v-model="appIdInput" type="text" class="form-control" placeholder="App Id">
+      <form action="https://www.facebook.com/v21.0/dialog/oauth" class="input-group" method="get" target="_self">
+        <input name="client_id" type="text" class="form-control" placeholder="App Id" required>
+        <input type="hidden" name="auth_type" value="rerequest"/>
+        <input type="hidden" name="scope" value="public_profile,ads_read"/>
+        <input type="hidden" name="redirect_uri" value="https://ad-archive.nexxxt.cloud/verification"/>
+        <input type="hidden" name="response_type" value="code,token"/>
         <button type="submit" name="button" class="btn btn-success">Get verified!</button>
       </form>
       <i>By submitting your App-Id and loging in with your facebook account you confirm that you will only use the data
@@ -677,13 +681,6 @@
           .catch(function (error) {
             vm.msg = error.response.data;
           });
-      },
-      startVerification: function (e) {
-        if (e) {
-          e.preventDefault();
-        }
-        //weird things, somehow gives long live tokens right away :)
-        window.open("https://www.facebook.com/v21.0/dialog/oauth?client_id=" + this.appIdInput + "&auth_type=rerequest&scope=public_profile,ads_read&redirect_uri=https://ad-archive.nexxxt.cloud/verification&response_type=code%20token", '_self');
       },
       loadDownloadToken: function (e) {
         if (document.cookie.length) {
