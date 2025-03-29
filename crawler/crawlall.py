@@ -94,10 +94,14 @@ class Crawler(Thread):
                             sleep(60)
                             continue
 
-                        elif out["error"]["code"] == 190:
-                            # stop the script to prevent error-spaming
+                        elif out["error"]["code"] == 190 or out["error"]["code"] == 10:
                             print("INVALID Token!")
-                            return False
+                            # We should delete the token from the database
+                            tokens.deleteToken(self.token)
+                            self.token = tokens.getNewToken()
+                            print("Using new token: %s" % self.token)
+                            continue
+
 
                         elif out["error"]["code"] == 613:
                             # the cooldown function has already switched to the next key so we can just retry

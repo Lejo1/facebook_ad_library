@@ -41,3 +41,8 @@ def getNewToken():
 def delayToken(id, delay):
     now = int(time())
     tokens.update_one({"_id": id}, {"$set": {"freshAt": now+delay}})
+
+# Used when theres an sure error with the token
+def deleteToken(token):
+    tokens.delete_one({"token": token})
+    print("Deleted token: %s" % token)
