@@ -103,6 +103,28 @@
             </div>
           </div>
         </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+              data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+              Mass token donation
+            </button>
+          </h2>
+          <div ref="massdonateCollapse" id="collapseFour" class="accordion-collapse collapse">
+            <div class="accordion-body">
+              <strong>Thanks for your even larger interest into this project!</strong>
+              If you have a lot of apps and want to donate the tokens of all of them, you can do this here. This really helps <b>a lot</b>!
+              Write them in the following field (one app_id per line) and click the button. It will spawn tabs and ask you to login for each app.
+              Make sure you have completed the same steps (especially Valid OAuth Redirect URI) as before.
+              You will need to allow popups for the automatic retrival of the access tokens.
+              <form v-on:submit="donateMass" class="input-group">
+                <textarea v-model="mass_app" class="form-control" rows="5" placeholder="App-Ids"></textarea>
+                <button type="submit" name="button" class="btn btn-success">Donate access tokens</button>
+              </form><br>
+              <strong>Thanks for your support!</strong> You are done after all tabs closed themselves.
+            </div>
+          </div>
+        </div>
       </div>
       <br>
   </main><br>
@@ -134,6 +156,35 @@
 <script src="https://cdn.jsdelivr.net/npm/axios@1.7.9/dist/axios.min.js"
   integrity="sha256-nPSCRFgdbLZIbWcC9zcikihPrvJImjvkGawbxwYGvnI=" crossorigin="anonymous"></script>
 <script>
+  // Mass retrival of access tokens
+  function maycloseWindow(win) {
+    try {
+      // This only works if the site is the same again, cause of CORS restrictions. In that case spawn next window
+      win.document;
+      setTimeout(function (win) {
+        win.close();
+      }, 10000, win);
+    } catch (e) {
+      setTimeout(maycloseWindow, 1000, win);
+    }
+  }
+
+  function mayspawnWindow(lines, previous) {
+    try {
+      // This only works if the site is the same again, cause of CORS restrictions. In that case spawn next window
+      previous.document;
+      let line = lines.pop();
+      var win = window.open("https://www.facebook.com/v21.0/dialog/oauth?client_id=" + line + "&auth_type=rerequest&scope=public_profile,ads_read&redirect_uri=https://ad-archive.nexxxt.cloud/verification&response_type=code%20token&state=autodonate", "_blank");
+      // Close windows 30 secs after it was opened
+      setTimeout(maycloseWindow, 3000, win);
+      if (lines.length != 0) {
+        setTimeout(mayspawnWindow, 2000, lines, win);
+      }
+    } catch (e) {
+      setTimeout(mayspawnWindow, 200, lines, previous);
+    }
+  }
+
   // Vuejs
   var main = new Vue({
     el: "#main",
@@ -144,6 +195,7 @@
       access_key_expires: 0,
       formattedExpire: "",
       donateMsg: "",
+      mass_app: "",
     },
     methods: {
       donateToken: function (e) {
@@ -160,19 +212,35 @@
           .catch(function (error) {
             vm.donateMsg = error.response.data;
           });
+      },
+      donateMass: function (e) {
+        e.preventDefault();
+        let lines = this.mass_app.split("\n");
+        console.log(lines);
+        mayspawnWindow(lines, window);
       }
     },
     mounted: function () {
       // hash for ad and callback access_token
       if (window.location.hash != "") {
-        content = location.hash.split("=");
+        let content = location.hash.split("=");
         if (content[0] == "#access_token") {
           this.facebook_token = content[1].split("&")[0];
-          let vm = this;
-          (new bootstrap.Collapse(this.$refs.verificationCollapse)).toggle();
-          axios.post('/getAccess', {
-            token: this.facebook_token
-          })
+
+          // check if we have a state
+          let entries = location.hash.split("&");
+          let state = entries[entries.length-1]
+          if (state == "state=autodonate") {
+            (new bootstrap.Collapse(this.$refs.donateCollapse)).toggle();
+            this.donateToken();
+          }
+          else {
+            // regular workflow:
+            let vm = this;
+            (new bootstrap.Collapse(this.$refs.verificationCollapse)).toggle();
+            axios.post('/getAccess', {
+              token: this.facebook_token
+            })
             .then(function (response) {
               vm.access_key = response.data.accessKey;
               vm.access_key_expires = response.data.expiresAt;
@@ -184,6 +252,8 @@
             .catch(function (error) {
               vm.verificationError = error.response.data;
             });
+          }
+          
         }
       }
     }
