@@ -26,7 +26,7 @@ import (
 const max_limit = 10000
 
 // Max offset
-const max_offset = 100000
+const max_offset = 500000
 
 // Timeout in Seconds
 const timeout = 30
