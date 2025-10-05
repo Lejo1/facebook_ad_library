@@ -92,7 +92,7 @@ class Crawler(Thread):
                             # These just occur sometimes and we don't want the whole script to stop.
                             print("Unexpected error! Watiting 1min...")
                             sleep(60)
-                            continue
+                            raise Exception(out["error"]["message"])
 
                         elif out["error"]["code"] == 190 or out["error"]["code"] == 10:
                             print("INVALID Token!")
