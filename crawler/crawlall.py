@@ -9,7 +9,7 @@ import config
 import tokens
 import queing
 
-lang = ",".join(config.COUNTRIES.keys())
+LANG = ",".join(config.COUNTRIES.keys())
 
 # Database for the ads
 db = MongoClient(config.DBURL)["facebook_ads_full"]
@@ -27,11 +27,12 @@ class Crawler(Thread):
     search allows to narrow the search
     c-limit specifies how often to crawl before stopping"""
 
-    def __init__(self, after="", search="", c_limit=0):
+    def __init__(self, after="", search="", c_limit=0, lang=LANG):
         Thread.__init__(self)
         self.after = after
         self.search = search
         self.c_limit = c_limit
+        self.lang = lang
         self.stop = False
         self.token = tokens.getNewToken()
 
@@ -65,7 +66,7 @@ class Crawler(Thread):
             try:
                 print("Running link... After: %s" % self.after)
                 firsturl = config.URL + "?access_token=%s&search_terms=*&ad_reached_countries=%s&ad_active_status=ALL&unmask_removed_content=true&fields=%s&limit=%i%s" % (
-                    self.token, lang, config.FIELDS, limit, self.search)
+                    self.token, self.lang, config.FIELDS, limit, self.search)
                 if self.after != "":
                     firsturl += "&after=%s" % self.after
 
@@ -169,7 +170,7 @@ class Crawler(Thread):
             c_limit = 0
             if self.c_limit != 0:
                 c_limit = self.c_limit-count
-            queing.addCrawler(self.after, self.search, c_limit)
+            queing.addCrawler(self.after, self.search, c_limit, self.lang)
         else:
             print("Finished, last Pointer: %s" % self.after)
         return True
@@ -183,7 +184,7 @@ if __name__ == "__main__":
             new = queing.mayGetCrawler()
             if new:
                 print("Spawning crawler, after=%s, search=%s, c_limit=%d" % (new["after"], new["search"] ,new["c_limit"]))
-                t = Crawler(new["after"], new["search"] ,new["c_limit"])
+                t = Crawler(new["after"], new["search"] , new["c_limit"], new.get("lang", LANG))
                 t.start()
                 threads.append(t)
 

@@ -137,7 +137,7 @@ COUNTRIES = {
     "BS": "The Bahamas",
     "MV": "Maldives",
     "OM": "Oman",
-    "MK": "Macedonia",
+    "MK": "North Macedonia",
     "LV": "Latvia",
     "EE": "Estonia",
     "IQ": "Iraq",
@@ -254,10 +254,10 @@ COUNTRIES = {
     "ST": "Sao Tome and Principe",
     "TV": "Tuvalu",
     "NR": "Nauru",
-    "RE": "R\u00e9union",
+    "RE": "Réunion",
     "LR": "Liberia",
     "ZW": "Zimbabwe",
-    "CI": "C\u00f4te d'Ivoire",
+    "CI": "Côte d'Ivoire",
     "MM": "Myanmar",
     "AN": "Netherlands Antilles",
     "AQ": "Antarctica",
@@ -267,7 +267,7 @@ COUNTRIES = {
     "CX": "Christmas Island",
     "CC": "Cocos (Keeling) Islands",
     "CK": "Cook Islands",
-    "CW": "Cura\u00e7ao",
+    "CW": "Curaçao",
     "TF": "French Southern Territories",
     "GW": "Guinea-Bissau",
     "HM": "Heard Island and McDonald Islands",
@@ -276,7 +276,7 @@ COUNTRIES = {
     "NU": "Niue",
     "NF": "Norfolk Island",
     "PN": "Pitcairn",
-    "BL": "Saint Barth\u00e9lemy",
+    "BL": "Saint Barthélemy",
     "SH": "Saint Helena",
     "MF": "Saint Martin",
     "PM": "Saint Pierre and Miquelon",
@@ -290,6 +290,10 @@ COUNTRIES = {
     "WF": "Wallis and Futuna",
     "EH": "Western Sahara"
 }
+
+POLITICAL_ADS_COUNTRIES = [
+    "BR", "IN", "GB", "US", "CA", "AR", "AU", "CL", "CN", "CO", "DO", "EG", "HK", "ID", "IL", "JP", "JO", "KW", "LB", "MY", "MX", "NZ", "NG", "NO", "PK", "PA", "PE", "PH", "RU", "SA", "RS", "SG", "ZA", "KR", "CH", "TW", "TH", "TR", "AE", "VE", "IS", "TT", "BD", "LK", "KE", "MA", "JM", "EC", "BO", "GT", "CR", "QA", "SV", "HN", "NI", "PY", "UY", "PR", "BA", "PS", "TN", "BH", "VN", "GH", "MU", "UA", "BS", "MV", "OM", "MK", "IQ", "DZ", "AL", "NP", "MO", "ME", "SN", "GE", "BN", "UG", "BB", "AZ", "TZ", "LY", "CM", "BW", "ET", "KZ", "NA", "MG", "MD", "FJ", "BY", "JE", "GU", "YE", "ZM", "IM", "HT", "KH", "AF", "BM", "GY", "AM", "MW", "AG", "RW", "GG", "GM", "LC", "KY", "BJ", "AD", "GD", "VI", "BZ", "VC", "MN", "MZ", "ML", "AO", "UZ", "DJ", "BF", "MC", "TG", "GA", "GI", "CD", "KG", "PG", "BT", "KN", "SZ", "LS", "LA", "LI", "MP", "SR", "SC", "VG", "TC", "DM", "MR", "SM", "SL", "NE", "CG", "AI", "CV", "GN", "TM", "BI", "TJ", "VU", "SB", "ER", "WS", "AS", "FK", "GQ", "TO", "KM", "PW", "FM", "CF", "SO", "MH", "VA", "TD", "KI", "ST", "TV", "NR", "LR", "ZW", "CI", "MM", "AN", "AQ", "BV", "IO", "CX", "CC", "CK", "GW", "HM", "XK", "MS", "NU", "NF", "PN", "SH", "GS", "SS", "SJ", "TL", "TK", "UM", "EH"
+]
 
 CURRENCYS = {
     "AF": "AFN",

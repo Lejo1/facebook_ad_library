@@ -19,9 +19,12 @@ db = MongoClient(config.DBURL)["facebook_ads_full"]
 
 queue = db["crawler_queue"]
 
-def addCrawler(after="", search="", c_limit=0):
+def addCrawler(after="", search="", c_limit=0, lang=None):
     """Adds a new crawler to the queue"""
-    queue.insert_one({"after": after, "search": search, "c_limit": c_limit})
+    doc = {"after": after, "search": search, "c_limit": c_limit}
+    if lang is not None:
+        doc["lang"] = lang
+    queue.insert_one(doc)
 
 def mayGetCrawler():
     """Trys to get crawler from the queue"""
@@ -45,10 +48,10 @@ def mayAddCrawlers():
             print("Crawling Completly! Next Complete-Crawl in %s hours." % config.GLOBAL_RECRAWL)
             c_limit = 0
 
-        addCrawler("", "" ,c_limit)
+        addCrawler("", "" , c_limit)
         if (i % config.POLITICS_RECRAWL) == 0:
             print("Crawling Political ads, next crawl in %d hours" % config.POLITICS_RECRAWL)
-            addCrawler("", "&ad_type=POLITICAL_AND_ISSUE_ADS")
+            addCrawler("", "&ad_type=POLITICAL_AND_ISSUE_ADS", 0, ",".join(config.POLITICAL_ADS_COUNTRIES))
 
         if (i % config.PAST_RECRAWL) == 0:
             months = 14 - past_offset % 14
