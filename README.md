@@ -90,6 +90,8 @@ You can access the current data stored for an ad at any time at: `https://ad-arc
 To allow access restrictions, the Links have been moved to the website: **https://ad-archive.nexxxt.cloud**  
 To receive access please complete the Steps under "Get Access" on the site.
 
+**For scientific organizations or press, I provide custom exports on request.**
+
 #### V6
 Since V6 there is a _last_updated field. It's automatically updated to the current time whenever the ad crawled from the Facebook ad library. It doesn't matter if the data actually changed. This aims to allow knowledge of the persistence of ads inside the database. Older ads may not have the field, but still exist in the ad library.
 #### V5
