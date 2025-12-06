@@ -173,6 +173,42 @@
         <restrictedlink href="https://b2.nexxxt.cloud/facebook_ads/report_de.csv">Report</restrictedlink><br>
         - USA (US) <restrictedlink href="https://b2.nexxxt.cloud/facebook_ads/us.zip">Download</restrictedlink>
         <restrictedlink href="https://b2.nexxxt.cloud/facebook_ads/report_us.csv">Report</restrictedlink>
+        <p>
+        <h4>Custom Exports</h4>
+        These exports were requested by scientific organizations or press and are provided here for everyone to use. Usually in json.gz instead of bson.gz format for easier usage in data analysis.<br>
+        - policital ads run in Norway (06.12.2025) <restrictedlink href="https://b2.nexxxt.cloud/facebook_ads/custom/norway_all_poltical_06_12_2025.json.gz">Download</restrictedlink>
+        <offcanvas text="MongoDB Query used">
+          <pre><code>{
+  "delivery_by_region": {
+    "$elemMatch": {
+      "region": {
+        "$in": [
+          "Akershus",
+          "Oslo",
+          "Vestfold",
+          "Vest-Agder",
+          "Troms",
+          "Telemark",
+          "Sør-Trøndelag",
+          "Sogn og Fjordane",
+          "Rogaland",
+          "Oppland",
+          "Aust-Agder",
+          "Nordland",
+          "Nord-Trøndelag",
+          "Møre og Romsdal",
+          "Hordaland",
+          "Hedmark",
+          "Finnmark",
+          "Buskerud",
+          "Østfold"
+        ]
+      }
+    }
+  }
+}</code></pre>
+        </offcanvas>
+        </p>
       </div>
     </div><br>
     <div class="container bg-light rounded-3">
@@ -299,6 +335,30 @@
         return this.href + "?Authorization=" + this.$root.downloadToken
       }
     },
+  });
+
+  // Offcanvas
+  Vue.component('offcanvas', {
+    props: ["text"],
+    data: function() {
+      return {
+        uniqueId: 'offcanvas-' + this._uid
+      }
+    },
+    template: `<span>
+    <a data-bs-toggle="offcanvas" :href="'#' + uniqueId" role="button" :aria-controls="uniqueId">
+    {{ text }}
+    </a>
+    <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" :id="uniqueId" :aria-labelledby="uniqueId + 'Label'">
+      <div class="offcanvas-header">
+      <h5 class="offcanvas-title" :id="uniqueId + 'Label'">{{ text }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+    <div class="offcanvas-body">
+      <slot></slot>
+    </div>
+    </div>
+    </span>`,
   });
 
   // Make bound texts
