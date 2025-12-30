@@ -239,14 +239,6 @@ func searchByPage(c *gin.Context) {
 	returnAdList(c, filter, sort)
 }
 
-// Get lost ads
-// GET /lostads?offset=0&limit=0
-func getLostAds(c *gin.Context) {
-	filter := bson.M{"lost": true}
-	sort := bson.M{"ad_creation_time": -1}
-	returnAdList(c, filter, sort)
-}
-
 // Get active ads
 // GET /actives?offset=0&limit=0
 func getActives(c *gin.Context) {
@@ -405,7 +397,6 @@ func main() {
 	router.GET("/adsbypage/:id", authenticateJWT(), getAdsByPage)
 	router.GET("/adsbydate/:date", authenticateJWT(), getAdsByDate)
 	router.GET("/search/:search", authenticateJWT(), searchByPage)
-	router.GET("/lostads", authenticateJWT(), getLostAds)
 	router.GET("/actives", authenticateJWT(), getActives)
 	router.GET("/latest", authenticateJWT(), getLatest)
 	router.POST("/getAccess", getAccess)

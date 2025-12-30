@@ -65,7 +65,7 @@ Also I later realized that when crawling very huge sites are empty although they
 #### Extra (non fb) fields
 - rendered (defines if the rendered version is available) (DEPRECATED since V5!)
 - rendering_started (used for queing the ads for rendering) (DEPRECATED since V5!)
-- lost (True, if the ad wasn't found while rendering)
+- lost (True, if the ad wasn't found while rendering) (DEPRECATED since V5!)
 - _last_updated (contains the date the ad was last crawled/updated)
 
 The field `ad_snapshot_url` is not crawled as it's just a combination of the id and your access token:  
@@ -91,7 +91,7 @@ To receive access please complete the Steps under "Get Access" on the site.
 Since V6 there is a _last_updated field. It's automatically updated to the current time whenever the ad crawled from the Facebook ad library. It doesn't matter if the data actually changed. This aims to allow knowledge of the persistence of ads inside the database. Older ads may not have the field, but still exist in the ad library.
 #### V5
 On the 17.08.2023 all EU ads since that date appeared in the database. It's now more than double the size before. EU ads contain extra fields as specificed above.  
-The fields used for rendering have been removed (except for lost) and are now handled seperatly.  
+The fields used for rendering have been removed and are now handled seperatly. The `lost` field is deprecated and not set for new ads anymore but still exists for older ads.  
 
 #### V4
 Downloading the database into a JSON file and compressing it took me increasingly long. That's why I switched to compressed [BSON](https://en.wikipedia.org/wiki/BSON) files (bson.gz). These are native to mongodb and can be created way faster and more reliable.  
