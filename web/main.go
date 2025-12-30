@@ -58,7 +58,6 @@ func connect_db() *mongo.Client {
 var client *mongo.Client = connect_db()
 var db *mongo.Database = client.Database("facebook_ads_full")
 var ads *mongo.Collection = db.Collection("ads")
-var render_queue *mongo.Collection = db.Collection("render_queue")
 
 // Token Collection
 var management *mongo.Database = client.Database("management")
@@ -264,29 +263,6 @@ func getLatest(c *gin.Context) {
 	returnAdList(c, filter, sort)
 }
 
-// Queue an Ad to preview rendering
-// POST /render_preview/id
-func queuePreview(c *gin.Context) {
-	ctx, cancel := context.WithTimeout(context.Background(), timeout*time.Second)
-	defer cancel()
-	id := c.Param("id")
-	filter := bson.M{"_id": id}
-
-	var result bson.M
-	if err := ads.FindOne(ctx, filter).Decode(&result); err != nil {
-		c.String(http.StatusNotFound, "Ad not found")
-		return
-	}
-	insert := bson.M{"_id": id, "rendering_started": 0}
-	_, err := render_queue.InsertOne(ctx, insert)
-	if err != nil {
-		c.String(http.StatusInternalServerError, "Ad already queued for rendering.")
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "Queued ad for rendering. It should be ready in a few seconds."})
-}
-
 // Json response from the Facebook debug_token endpoint
 type DEBUG_TOKEN_DATA struct {
 	App_id     string `json:"app_id"`
@@ -432,7 +408,6 @@ func main() {
 	router.GET("/lostads", authenticateJWT(), getLostAds)
 	router.GET("/actives", authenticateJWT(), getActives)
 	router.GET("/latest", authenticateJWT(), getLatest)
-	router.POST("/render_preview/:id", authenticateJWT(), queuePreview)
 	router.POST("/getAccess", getAccess)
 	router.POST("/addToken", addToken)
 	router.GET("/getDownloadToken", authenticateJWT(), getDownloadToken)

@@ -75,11 +75,6 @@ To get to the ad if you don't have any access token you can use this link:
 
 For more information have a look at the `example.json` file or the description of the fields on the official [API](https://www.facebook.com/ads/library/api/).
 
-### Rendered Previews
-
-The script from the `preview_renderer` folder is used to take a screeshot of the relevant elements from the `ad_snapshot_url` of each ad. The seperate `render_queue` database is used for queuing the ads for rendering. After rendering images are stored for one month but can be rerendered at any time.   
-After rendering you can view them here: `https://facebook-ad-previews.nexxxt.cloud/<id>.jpg`
-
 ### Individual Ad-Data
 
 You can access the current data stored for an ad at any time at: `https://ad-archive.nexxxt.cloud/ad/<AD_ID>`. This endpoint may also be used for automated downloads of ad-information and allows cross-origin requests. Please note that it might take some time for new ads to be crawled and added to the database.

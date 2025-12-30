@@ -2,32 +2,6 @@
 version: '3'
 
 services:
-  firefox:
-    image: selenium/standalone-firefox
-    restart: always
-    shm_size: 2gb
-    environment:
-      - SE_NODE_MAX_SESSIONS=8
-
-  render_preview:
-    build: ./preview_renderer
-    restart: always
-    volumes:
-      - ./render-out:/out
-      - ./b2_account_info.sqlite:/b2_account_info.sqlite
-    environment:
-      PYTHONUNBUFFERED: 1
-      RENDER_ALL: False
-      B2_ACCOUNT_INFO_ENV_VAR: /b2_account_info.sqlite
-    stop_signal: SIGINT
-    env_file:
-      - secrets.env
-    depends_on:
-      - firefox
-    deploy:
-      mode: replicated
-      replicas: 3
-
   api_crawler:
     build: ./crawler
     restart: always
