@@ -65,7 +65,7 @@ Also I later realized that when crawling very huge sites are empty although they
 #### Extra (non fb) fields
 - rendered (defines if the rendered version is available) (DEPRECATED since V5!)
 - rendering_started (used for queing the ads for rendering) (DEPRECATED since V5!)
-- lost (True, if the ad wasn't found while rendering)
+- lost (True, if the ad wasn't found while rendering) (DEPRECATED since V5!)
 - _last_updated (contains the date the ad was last crawled/updated)
 
 The field `ad_snapshot_url` is not crawled as it's just a combination of the id and your access token:  
@@ -74,11 +74,6 @@ To get to the ad if you don't have any access token you can use this link:
 `https://www.facebook.com/ads/library/?id=<id>`  
 
 For more information have a look at the `example.json` file or the description of the fields on the official [API](https://www.facebook.com/ads/library/api/).
-
-### Rendered Previews
-
-The script from the `preview_renderer` folder is used to take a screeshot of the relevant elements from the `ad_snapshot_url` of each ad. The seperate `render_queue` database is used for queuing the ads for rendering. After rendering images are stored for one month but can be rerendered at any time.   
-After rendering you can view them here: `https://facebook-ad-previews.nexxxt.cloud/<id>.jpg`
 
 ### Individual Ad-Data
 
@@ -95,8 +90,8 @@ To receive access please complete the Steps under "Get Access" on the site.
 #### V6
 Since V6 there is a _last_updated field. It's automatically updated to the current time whenever the ad crawled from the Facebook ad library. It doesn't matter if the data actually changed. This aims to allow knowledge of the persistence of ads inside the database. Older ads may not have the field, but still exist in the ad library.
 #### V5
-On the 17.08.2023 all EU ads since that date appeared in the database. It's now more than double the size before. EU ads contain extra fields as specificed above.  
-The fields used for rendering have been removed (except for lost) and are now handled seperatly.  
+On the 17.08.2023 all EU ads since that date appeared in the database. It's now more than double the size before. EU ads contain extra fields as specified above.  
+The fields used for rendering have been removed and are now handled separately. The `lost` field is deprecated and not set for new ads anymore but still exists for older ads.  
 
 #### V4
 Downloading the database into a JSON file and compressing it took me increasingly long. That's why I switched to compressed [BSON](https://en.wikipedia.org/wiki/BSON) files (bson.gz). These are native to mongodb and can be created way faster and more reliable.  

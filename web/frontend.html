@@ -91,8 +91,8 @@
         </p>
         On the 17.08.2023 all EU ads since that date appeared in the database. It's now more than double the size
         before.
-        EU ads contain extra fields as specificed above.
-        The fields used for rendering have been removed (except for lost) and are now handled seperatly. <br>
+        EU ads contain extra fields as specified above.
+        The fields used for rendering have been removed and are now handled separately. The `lost` field is deprecated and not set for new ads anymore but still exists for older ads. <br>
         <restrictedlink href="https://b2.nexxxt.cloud/facebook_ads/full5.0/ads.bson.gz">Download</restrictedlink>
         <restrictedlink href="https://b2.nexxxt.cloud/facebook_ads/full5.0/ads.metadata.json.gz">Metadata
         </restrictedlink>
@@ -277,14 +277,6 @@
     <div class="container-fluid bg-light rounded-3">
       <h2>Find Ads by Page ID or Page Name</h2>
       <adform></adform><br>
-    </div><br>
-    <div class="container-fluid bg-light rounded-3">
-      <h2>Lost Ads</h2>
-      <p>These Ads sorted by creation time weren't found on the Facebook Ad Library while trying to render them. This
-        doesn't has to mean they are still lost!</p>
-      <button v-on:click="$refs.lostads.submit()" type="submit" name="button"
-        class="btn btn-success">Load</button><br><br>
-      <adlist ref="lostads" endpoint="/lostads" input=""></adlist><br>
     </div><br>
     <div class="container-fluid bg-light rounded-3">
       <h2>Active Ads</h2>
@@ -520,22 +512,9 @@
       <li v-if="data.delivery_by_region" class="list-group-item"><canvas ref="region_chart"></canvas></li>
       <li v-if="data.demographic_distribution" class="list-group-item"><canvas ref="demo_chart"></canvas></li>
     </ul>
-    <div class="card-footer text-center">
-      <b v-if="data.lost">This Ad was not found while rendering and seems to be lost!<br></b>
-      <alert v-model="msg" v-bind:kind="kind"></alert>
-      <a v-on:click="togglepreview" class="btn btn-primary"><span v-show="rendering" class="spinner-border spinner-border-sm"></span>Toggle preview</a>
-    </div>
-    <div class="collapse" ref="preview_collapse">
-      <img v-if="load_preview" v-bind:src="imglink" v-on:load="(new bootstrap.Collapse($refs.preview_collapse)).show();" v-on:error="renderpreview" alt="Ad Preview" class="card-img-bottom">
-    </div>
     </div>`,
     data() {
-      return {
-        rendering: false,
-        msg: "",
-        kind: "success",
-        load_preview: false
-      };
+      return {};
     },
     methods: {
       makelink: function (i) {
@@ -547,27 +526,6 @@
           url = 'http://' + url;
         }
         return url
-      },
-      togglepreview: function () {
-        this.load_preview = true;
-        (new bootstrap.Collapse(this.$refs.preview_collapse)).toggle();
-      },
-      renderpreview: function () {
-        this.load_preview = false;
-        this.rendering = true;
-        const vm = this;
-        axios.post('/render_preview/' + this.data._id)
-          .then(function (response) {
-            vm.msg = response.data.message;
-            vm.kind = "success";
-          })
-          .catch(function (error) {
-            vm.msg = error.response.data;
-            vm.kind = "danger";
-          })
-          .then(function () {
-            vm.rendering = false;
-          });
       }
     },
     computed: {
@@ -601,9 +559,6 @@
       },
       impressions: function () {
         return text_bounds(this.data.impressions)
-      },
-      imglink: function () {
-        return "https://facebook-ad-previews.nexxxt.cloud/" + this.data._id + ".jpg"
       }
     },
     mounted: function () {
