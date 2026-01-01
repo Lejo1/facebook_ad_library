@@ -17,5 +17,9 @@ services:
     environment:
       - GIN_MODE=release
       - DB_URL=mongodb://...
+      - B2_APPLICATION_KEY_ID=
+      - B2_APPLICATION_KEY=
+      - B2_BUCKET_NAME=
+      - JWT_SECRET=
     ports:
       - 8080:8080
