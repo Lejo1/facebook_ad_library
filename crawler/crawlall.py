@@ -61,6 +61,7 @@ class Crawler(Thread):
         retried = 0
         error_retries = 0
         count = 0
+        session = requests.Session()
         while not self.stop and (self.c_limit == 0 or self.c_limit > count):
             count += 1
             try:
@@ -70,7 +71,7 @@ class Crawler(Thread):
                 if self.after != "":
                     firsturl += "&after=%s" % self.after
 
-                response = requests.get(firsturl)
+                response = session.get(firsturl)
                 # Checking the usage header:
                 self.cooldown(response.headers)
 
