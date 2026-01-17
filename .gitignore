@@ -2,3 +2,5 @@ __pycache__/
 */secrets.py
 secrets.env
 docker-compose.yml
+
+web/vendor/
