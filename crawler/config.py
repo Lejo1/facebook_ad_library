@@ -291,9 +291,8 @@ COUNTRIES = {
     "EH": "Western Sahara"
 }
 
-POLITICAL_ADS_COUNTRIES = [
-    "BR", "IN", "GB", "US", "CA", "AR", "AU", "CL", "CN", "CO", "DO", "EG", "HK", "ID", "IL", "JP", "JO", "KW", "LB", "MY", "MX", "NZ", "NG", "NO", "PK", "PA", "PE", "PH", "RU", "SA", "RS", "SG", "ZA", "KR", "CH", "TW", "TH", "TR", "AE", "VE", "IS", "TT", "BD", "LK", "KE", "MA", "JM", "EC", "BO", "GT", "CR", "QA", "SV", "HN", "NI", "PY", "UY", "PR", "BA", "PS", "TN", "BH", "VN", "GH", "MU", "UA", "BS", "MV", "OM", "MK", "IQ", "DZ", "AL", "NP", "MO", "ME", "SN", "GE", "BN", "UG", "BB", "AZ", "TZ", "LY", "CM", "BW", "ET", "KZ", "NA", "MG", "MD", "FJ", "BY", "JE", "GU", "YE", "ZM", "IM", "HT", "KH", "AF", "BM", "GY", "AM", "MW", "AG", "RW", "GG", "GM", "LC", "KY", "BJ", "AD", "GD", "VI", "BZ", "VC", "MN", "MZ", "ML", "AO", "UZ", "DJ", "BF", "MC", "TG", "GA", "GI", "CD", "KG", "PG", "BT", "KN", "SZ", "LS", "LA", "LI", "MP", "SR", "SC", "VG", "TC", "DM", "MR", "SM", "SL", "NE", "CG", "AI", "CV", "GN", "TM", "BI", "TJ", "VU", "SB", "ER", "WS", "AS", "FK", "GQ", "TO", "KM", "PW", "FM", "CF", "SO", "MH", "VA", "TD", "KI", "ST", "TV", "NR", "LR", "ZW", "CI", "MM", "AN", "AQ", "BV", "IO", "CX", "CC", "CK", "GW", "HM", "XK", "MS", "NU", "NF", "PN", "SH", "GS", "SS", "SJ", "TL", "TK", "UM", "EH"
-]
+POLITICAL_ADS_COUNTRIES = ['US', 'CA', 'GB', 'AR', 'AU', 'BR', 'CL', 'CN', 'CO', 'DO', 'EG', 'HK', 'IN', 'ID', 'IL', 'JP', 'JO', 'KW', 'LB', 'MY', 'MX', 'NZ', 'NG', 'NO', 'PK', 'PA', 'PE', 'PH', 'RU', 'SA', 'RS', 'SG', 'ZA', 'KR', 'CH', 'TW', 'TH', 'TR', 'AE', 'VE', 'IS', 'TT', 'BD', 'LK', 'KE', 'MA', 'JM', 'EC', 'BO', 'GT', 'CR', 'QA', 'SV', 'HN', 'NI', 'PY', 'UY', 'PR', 'BA', 'PS', 'TN', 'BH', 'VN', 'GH', 'MU', 'UA', 'BS', 'MV', 'OM', 'MK', 'IQ', 'DZ', 'AL', 'NP', 'MO', 'ME', 'SN', 'GE', 'BN', 'UG', 'BB', 'AZ', 'TZ', 'LY', 'CM', 'BW', 'ET', 'KZ', 'NA', 'MG', 'MD', 'FJ', 'BY', 'JE', 'GU', 'YE', 'ZM', 'IM', 'HT', 'KH', 'AF', 'BM', 'GY', 'AM', 'MW', 'AG', 'RW', 'GG', 'GM', 'LC', 'KY', 'BJ', 'AD', 'GD', 'VI', 'BZ', 'VC', 'MN', 'MZ', 'ML', 'AO', 'UZ', 'DJ', 'BF', 'MC', 'TG', 'GA', 'GI', 'CD', 'KG', 'PG', 'BT', 'KN', 'SZ', 'LS', 'LA', 'LI', 'MP', 'SR', 'SC', 'VG', 'TC', 'DM', 'MR', 'SM', 'SL', 'NE', 'CG', 'AI', 'CV', 'GN', 'TM', 'BI', 'TJ', 'VU', 'SB', 'ER', 'WS', 'AS', 'FK', 'GQ', 'TO', 'KM', 'PW', 'FM', 'CF', 'SO', 'MH', 'VA', 'TD', 'KI', 'ST', 'TV', 'NR', 'LR', 'ZW', 'CI', 'MM', 'AN', 'AQ', 'BV', 'IO', 'CX', 'CC', 'CK', 'GW', 'HM', 'XK', 'MS', 'NU', 'NF', 'PN', 'SH', 'GS', 'SS', 'SJ', 'TL', 'TK', 'UM', 'EH']
+
 
 CURRENCYS = {
     "AF": "AFN",
@@ -545,6 +544,3 @@ CURRENCYS = {
     "ZM": "USD",
     "ZW": "USD",
 }
-
-AD_COUNTRIES = ["US", "IL", "IN", "UA", "CA", "AR", "SG", "TW", "GB", "AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR", "HU", "IE", "IT", "LK", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE", "NZ", "AU", "BF", "BO", "BR", "BZ", "CI", "CL", "CO",
-                "DO", "EC", "GE", "GH", "GY", "ID", "IQ", "IS", "JP", "KG", "MD", "ME", "MK", "ML", "MM", "MN", "MX", "MY", "PH", "PW", "RS", "SC", "SR", "TR", "TZ", "VC", "AL", "BJ", "KY", "ET", "FK", "HN", "KE", "MG", "MU", "MA", "PY", "PE", "LC", "WS", "ST", "SN", "GS", "TO", "TT", "UY", "NO", "ZA", "ZM"]
