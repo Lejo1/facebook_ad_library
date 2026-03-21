@@ -77,6 +77,13 @@
       <div class="collapse" id="collapseDownload">
         The links contain an Authorization key, don't share them!
         <p>
+        <h4>V7</h4>
+        </p>
+        As of the disagreements with facebook and the resulting reduction of the rate limit I'm struggeling to keep up with the crawls. The database is incomplete for sure but I try the best to catch as much ads as possible! Political ads are crawled extra and should still be complete.
+        The archives are now created using `mongodump .. --archive | zstd -6` to reduce total file size as the dataset drasticly grew. To restore them you can use `zstd -d ads.bson.zst | mongorestore --archive ...`. <br>
+        <restrictedlink href="https://f003.backblazeb2.com/file/nexxxt-publish/facebook_ads/full7.0.ads.bson.zst">Download</restrictedlink> (18.03.2026)
+        <br><small>sha256:be094b563e640b85e519ac75abd17b769169c8f96848ed0ca0b2551bc9ff46c3</small>
+        <p>
         <h4>V6</h4>
         </p>
         Since V6 there is a _last_updated field. It's automatically updated to the current time whenever the ad crawled

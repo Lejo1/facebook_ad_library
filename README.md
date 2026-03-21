@@ -87,6 +87,10 @@ To receive access please complete the Steps under "Get Access" on the site.
 
 **For scientific organizations or press, I provide custom exports on request.**
 
+#### V7
+As of the disagreements with facebook and the resulting reduction of the rate limit I'm struggeling to keep up with the crawls. The database is incomplete for sure but I try the best to catch as much ads as possible! Political ads are crawled extra and should still be complete.
+The archives are now created using `mongodump .. --archive | zstd -6` to reduce total file size as the dataset drasticly grew. To restore them you can use `zstd -d ads.bson.zst | mongorestore --archive ...`.
+
 #### V6
 Since V6 there is a _last_updated field. It's automatically updated to the current time whenever the ad crawled from the Facebook ad library. It doesn't matter if the data actually changed. This aims to allow knowledge of the persistence of ads inside the database. Older ads may not have the field, but still exist in the ad library.
 #### V5
