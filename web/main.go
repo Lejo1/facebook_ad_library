@@ -15,6 +15,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 
 	"net/http"
+	"net/url"
 
 	"github.com/Backblaze/blazer/b2"
 	"github.com/gin-contrib/cors"
@@ -269,7 +270,8 @@ type DEBUG_TOKEN struct {
 // Validates the FB TOKEN
 func validateFBToken(token string) (DEBUG_TOKEN_DATA, error) {
 	var response DEBUG_TOKEN
-	resp, err := http.Get("https://graph.facebook.com/debug_token?input_token=" + token + "&access_token=" + token)
+	escapedToken := url.QueryEscape(token)
+	resp, err := http.Get("https://graph.facebook.com/debug_token?input_token=" + escapedToken + "&access_token=" + escapedToken)
 	if err != nil {
 		return response.Data, fmt.Errorf("validation request failed")
 	}
@@ -288,7 +290,8 @@ func validateFBToken(token string) (DEBUG_TOKEN_DATA, error) {
 
 // Validate FB Token capability to do ad_archive requests
 func validateTokenCapa(token string) bool {
-	res, err := http.Get("https://graph.facebook.com/ads_archive?access_token=" + token + "&search_terms=*&ad_reached_countries=US&ad_active_status=ALL&limit=1")
+	escapedToken := url.QueryEscape(token)
+	res, err := http.Get("https://graph.facebook.com/ads_archive?access_token=" + escapedToken + "&search_terms=*&ad_reached_countries=US&ad_active_status=ALL&limit=1")
 	return (err == nil && res.StatusCode == http.StatusOK)
 }
 
@@ -355,7 +358,7 @@ func addToken(c *gin.Context) {
 	}
 
 	filter := bson.M{"_id": id}
-	update := bson.M{"$set": bson.M{"token": token, "expiresAt": time.Unix(expiresAt, 0)}, "$setOnInsert": bson.M{"freshAt": 0}}
+	update := bson.M{"$set": bson.M{"token": url.QueryEscape(token), "expiresAt": time.Unix(expiresAt, 0)}, "$setOnInsert": bson.M{"freshAt": 0}}
 	opts := options.Update().SetUpsert(true)
 
 	_, err = tokens.UpdateOne(ctx, filter, update, opts)
