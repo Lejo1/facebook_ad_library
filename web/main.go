@@ -9,10 +9,10 @@ import (
 	"strings"
 	"time"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/mongo/readpref"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/mongo/readpref"
 
 	"net/http"
 	"net/url"
@@ -41,7 +41,7 @@ func min(a int64, b int64) int64 {
 
 func connect_db() *mongo.Client {
 	// Create a new client and connect to the server
-	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(os.Getenv("DB_URL")))
+	client, err := mongo.Connect(options.Client().ApplyURI(os.Getenv("DB_URL")))
 	if err != nil {
 		panic(err)
 	}
@@ -359,7 +359,7 @@ func addToken(c *gin.Context) {
 
 	filter := bson.M{"_id": id}
 	update := bson.M{"$set": bson.M{"token": url.QueryEscape(token), "expiresAt": time.Unix(expiresAt, 0)}, "$setOnInsert": bson.M{"freshAt": 0}}
-	opts := options.Update().SetUpsert(true)
+	opts := options.UpdateOne().SetUpsert(true)
 
 	_, err = tokens.UpdateOne(ctx, filter, update, opts)
 	if err != nil {
